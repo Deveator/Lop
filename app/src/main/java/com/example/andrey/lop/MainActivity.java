@@ -3,23 +3,22 @@ package com.example.andrey.lop;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.Point;
+//import android.graphics.Point;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.view.Display;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import org.opencv.android.OpenCVLoader;
 import org.opencv.android.Utils;
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
+import org.opencv.core.Point;
 import org.opencv.core.Mat;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
@@ -28,14 +27,15 @@ import org.opencv.imgproc.Imgproc;
 
 import java.io.IOException;
 
-import static org.opencv.core.CvType.CV_8U;
-
 public class MainActivity extends AppCompatActivity {
 
     ImageView iV, iV2, iV3;
     Button bttn, bttn2, bttn3;
     TextView infoTw;
     static int mark = 0;
+
+
+    //  Mat houghLines = new Mat();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,7 +98,7 @@ public class MainActivity extends AppCompatActivity {
         }
         if (mark == 2) {
             iV3.setImageBitmap(bitmap);
-          //  matImg3 = mat;
+            //  matImg3 = mat;
         }
     }
 
@@ -117,25 +117,71 @@ public class MainActivity extends AppCompatActivity {
         Imgproc.resize(originImg, originImg, sz);
 
 
-        Mat rgbImg = new Mat();
+      //  Mat rgbImg = new Mat();
+       // Mat cannyEdges = new Mat();
+       // Mat lines = new Mat();
 
 
         int y = 7;
-        Imgproc.cvtColor(originImg, rgbImg, Imgproc.COLOR_BGR2GRAY);
-       // Imgproc.Canny(rgbImg,rgbImg,100,100);
-     //   Imgproc.GaussianBlur(rgbImg,rgbImg, new Size(y,y),0.0);
-        Imgproc.GaussianBlur(rgbImg,rgbImg,new Size(21,21),9);
-        // Imgproc.cvtColor(rgbImg, newImg, Imgproc.COLOR_RGB2GRAY);
+        //  Imgproc.cvtColor(originImg, rgbImg, Imgproc.COLOR_BGR2GRAY);
+        // convert to Canny Edge Detector
+        ///  Imgproc.Canny(rgbImg,rgbImg,50,50);
 
+        //   Imgproc.HoughLines(rgbImg,rgbImg,5.0,4.0,50);
+
+        //Converting the image to grayscale
+        //  Imgproc.cvtColor(originalMat, grayMat, Imgproc.COLOR_BGR2GRAY);
+
+        //  setHoughLines(originImg);
+        //
+
+        void HoughLines () {
+
+            Mat rgbImg = new Mat();
+            Mat cannyEdges = new Mat();
+            Mat lines = new Mat();
+
+            Imgproc.cvtColor(originImg, rgbImg, Imgproc.COLOR_BGR2GRAY);
+            Imgproc.Canny(rgbImg, cannyEdges, 10, 100);
+            Imgproc.HoughLinesP(cannyEdges, lines, 1, Math.PI / 180, 50, 20, 20);
+
+            Mat houghLines = new Mat();
+            houghLines.create(cannyEdges.rows(), cannyEdges.cols(), CvType.CV_8UC1);
+
+            //Drawing lines on the image
+            for (int i = 0; i < lines.cols(); i++) {
+                double[] points = lines.get(0, i);
+                double x1, y1, x2, y2;
+
+                x1 = points[0];
+                y1 = points[1];
+                x2 = points[2];
+                y2 = points[3];
+
+                Point pt1 = new Point(x1, y1);
+                Point pt2 = new Point(x2, y2);
+
+                //Drawing lines on an image
+                Imgproc.line(houghLines, pt1, pt2, new Scalar(255, 0, 0), 1);
+            }
+            sampledImg = houghLines;
+        }
+        //Drawing lines on the image
+
+
+        //   Imgproc.GaussianBlur(rgbImg,rgbImg, new Size(y,y),0.0);
+        //  Imgproc.GaussianBlur(rgbImg,rgbImg,new Size(21,21),9);
+        // Imgproc.cvtColor(rgbImg, newImg, Imgproc.COLOR_RGB2GRAY);
+/*
         Display display = getWindowManager().getDefaultDisplay();
         Point size = new Point();
         display.getSize(size);
 
         int mobile_width = size.x;
         int mobile_height = size.y;
+*/
 
-
-        sampledImg = rgbImg;
+        //    sampledImg = setHoughLines(originImg);
 
         //   int rows = newImg.rows();
         //   int clmns = newImg.cols();
@@ -167,6 +213,40 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
     }
+
+
+        private Mat setHoughLines(Mat mat) {
+
+            Mat grayIMat = new Mat();
+            Mat cannyIMat = new Mat();
+            Mat houghLinesIMat = new Mat();
+
+            Imgproc.cvtColor(mat, grayIMat, Imgproc.COLOR_BGR2GRAY);
+            Imgproc.Canny(grayIMat, cannyIMat, 10, 100);
+            Imgproc.HoughLinesP(cannyIMat, houghLinesIMat, 1, Math.PI / 180, 50, 20, 20);
+
+            Mat houghLines = new Mat();
+           // houghLines.create(houghLinesIMat.rows(), houghLinesIMat.cols(), CvType.CV_8UC1);
+
+            //Drawing lines on the image
+            for (int i = 0; i < houghLinesIMat.cols(); i++) {
+                double[] points = houghLinesIMat.get(0, i);
+                double x1, y1, x2, y2;
+
+                x1 = points[0];
+                y1 = points[1];
+                x2 = points[2];
+                y2 = points[3];
+
+                Point pt1 = new Point(x1, y1);
+                Point pt2 = new Point(x2, y2);
+
+                //Drawing lines on an image
+                Imgproc.line(houghLines, pt1, pt2, new Scalar(255, 0, 0), 1);
+            }
+           return houghLines;
+
+        }
 
     private double calculateSubSimpleSize(Mat src, int mobile_width, int mobile_height) {
 
@@ -204,15 +284,15 @@ public class MainActivity extends AppCompatActivity {
 
     public void actionAny(View view) {
 
-     //   changedImg = new Mat();
-     //   changedImg = sampledImg;
+        //   changedImg = new Mat();
+        //   changedImg = sampledImg;
 
         //   Imgproc.cvtColor(sampledImg, changedImg, Imgproc.COLOR_BGR2GRAY);
 
         //   Imgproc.applyColorMap(sampledImg,changedImg,Imgproc.COLORMAP_JET);
         //  Imgproc.cvtColor(sampledImg, changedImg, Imgproc.COLOR_RGB2GRAY);
 
-      //  displayImage(changedImg);
+        //  displayImage(changedImg);
 
         //  changedImg.convertTo(changedImg,CvType.CV_16UC1);
         int rows1 = matImg1.rows();
@@ -220,7 +300,7 @@ public class MainActivity extends AppCompatActivity {
 
         int rows2 = matImg2.rows();
         int clmns2 = matImg2.cols();
-       // int chn = changedImg.channels();
+        // int chn = changedImg.channels();
         // changedImg.convertTo(changedImg,CV_8U);
         // int sRbgColor = changedImg.getRGB(int x, int y);
         //   int t = changedImg.get(50, 50);
@@ -235,7 +315,7 @@ public class MainActivity extends AppCompatActivity {
    */
 
         infoTw.setText("rows 1 = " + rows1 + " , columns 1 = " + clmns1 + '\n' + "rows 2 = " + rows2 + " , columns 2 = " + clmns2);
-      //  infoTw.setText("rows 1 = " + rows2 + " , columns 1 = " + clmns2 );
+        //  infoTw.setText("rows 1 = " + rows2 + " , columns 1 = " + clmns2 );
 
         // double[] ft = changedImg.get(1060, 2080);
 
@@ -258,8 +338,8 @@ public class MainActivity extends AppCompatActivity {
 
         Mat matImg3 = new Mat();
 
-      //  Core.addWeighted(matImg1,0.7,matImg2,0.3,0.0,matImg3);
-        Core.add(matImg1,matImg2,matImg3);
+        //  Core.addWeighted(matImg1,0.7,matImg2,0.3,0.0,matImg3);
+        Core.add(matImg1, matImg2, matImg3);
         displayImage(matImg3);
 
     }
