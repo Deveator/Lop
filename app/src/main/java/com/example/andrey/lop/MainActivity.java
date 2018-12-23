@@ -27,15 +27,19 @@ import org.opencv.imgproc.Imgproc;
 
 import java.io.IOException;
 
+
 public class MainActivity extends AppCompatActivity {
 
     ImageView iV, iV2, iV3;
     Button bttn, bttn2, bttn3;
     TextView infoTw;
     static int mark = 0;
+    static int mark2 = 0;
+    Mat orImage, houghImage, greyImage, cannyImage, gaussianImage;
+    int tX, tY;
 
-
-    //  Mat houghLines = new Mat();
+    //  Mat sampledImg = new Mat();
+    //  Mat rgbImg = new Mat();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,9 +75,14 @@ public class MainActivity extends AppCompatActivity {
 
             String path = getPath(imageUri);
 
-            loadImage(path);
+            // loadImage(path);
 
-            displayImage(sampledImg);
+            getOriginImage(path);
+
+
+            getCannyImage(orImage, 50,50 );
+
+            displayImage(cannyImage);
 
             mark++;
         }
@@ -103,29 +112,107 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    Mat sampledImg, changedImg, newImg;
+    // method to get imate in Mat format resized down 4 times from path
+    private Mat getOriginImage(String path) {
+        Mat originImg = Imgcodecs.imread(path);// image is BGR format , try to get format
+        int rows = originImg.rows();
+        int clmns = originImg.cols();
+        Size sz = new Size(clmns / 4, rows / 4);
+        Imgproc.resize(originImg, originImg, sz);
+        orImage = originImg;
+        return orImage;
+    }
 
+    //  Mat greyImage;
+
+    // method to get image in gray color
+    private Mat getGreyImage(Mat matImage) {
+        Mat img = new Mat();
+        // convert to gray color
+        Imgproc.cvtColor(matImage, img, Imgproc.COLOR_BGR2GRAY);
+        greyImage = img;
+        return greyImage;
+    }
+
+    // method to image in gray color with Canny edges
+    private Mat getCannyImage(Mat matImage, int X_threshold, int Y_threshold) {
+        Mat img = new Mat();
+        // convert to gray color
+        Imgproc.cvtColor(matImage, img, Imgproc.COLOR_BGR2GRAY);
+        // convert to "Canny" image
+        // X_threshould & Y_threshold set threshold to find better edges or filter found edges via threshold with help of pixels values
+        Imgproc.Canny(img, img, X_threshold, Y_threshold);
+        cannyImage = img;
+        return cannyImage;
+    }
+
+
+    // method to image in gray color with Hough lines
+    private Mat getHoughLinesImage(Mat matImage) {
+
+        Mat rgbImg = new Mat();
+        Mat cannyEdges = new Mat();
+        Mat hLImage = new Mat();
+        Mat linesImage = new Mat();
+        Imgproc.cvtColor(matImage, rgbImg, Imgproc.COLOR_BGR2GRAY);
+        Imgproc.Canny(rgbImg, cannyEdges, 50, 50);
+        Imgproc.HoughLinesP(cannyEdges, linesImage, 1, Math.PI / 180, 50, 20, 20);
+        hLImage.create(cannyEdges.rows(), cannyEdges.cols(), CvType.CV_8UC1);
+        //Drawing lines on the image
+        for (int i = 0; i < linesImage.cols(); i++) {
+            double[] points = linesImage.get(0, i);
+            double x1, y1, x2, y2;
+
+            x1 = points[0];
+            y1 = points[1];
+            x2 = points[2];
+            y2 = points[3];
+
+            Point pt1 = new Point(x1, y1);
+            Point pt2 = new Point(x2, y2);
+
+            //Drawing lines on an image
+            Imgproc.line(hLImage, pt1, pt2, new Scalar(255, 0, 0), 1);
+        }
+        houghImage = hLImage;
+        return houghImage;
+    }
+
+    private Mat getGaussianImage(Mat matImage, int xSize, int ySize, double vSigma) {
+
+        // vSigma - more vSigma digit - more smoother
+        Mat img = new Mat();
+        Imgproc.cvtColor(matImage, img, Imgproc.COLOR_BGR2GRAY);
+        Size vSize = new Size();
+        vSize.height = ySize;
+        vSize.width = xSize;
+        Imgproc.GaussianBlur(img, img, vSize, vSigma);
+        gaussianImage = img;
+        return gaussianImage;
+    }
+
+/*
     private void loadImage(String path) {
 
         Mat originImg = Imgcodecs.imread(path);// image is BGR format , try to get format
 
-
         int rows = originImg.rows();
         int clmns = originImg.cols();
 
-        Size sz = new Size(clmns / 2, rows / 2);
+        Size sz = new Size(clmns / 4, rows / 4);
         Imgproc.resize(originImg, originImg, sz);
 
 
-      //  Mat rgbImg = new Mat();
-       // Mat cannyEdges = new Mat();
-       // Mat lines = new Mat();
+        Mat rgbImg = new Mat();
+
+        // Mat cannyEdges = new Mat();
+        // Mat lines = new Mat();
 
 
-        int y = 7;
-        //  Imgproc.cvtColor(originImg, rgbImg, Imgproc.COLOR_BGR2GRAY);
+        //int y = 7;
+        Imgproc.cvtColor(originImg, rgbImg, Imgproc.COLOR_BGR2GRAY);
         // convert to Canny Edge Detector
-        ///  Imgproc.Canny(rgbImg,rgbImg,50,50);
+        Imgproc.Canny(rgbImg, rgbImg, 50, 50);
 
         //   Imgproc.HoughLines(rgbImg,rgbImg,5.0,4.0,50);
 
@@ -166,28 +253,24 @@ public class MainActivity extends AppCompatActivity {
             }
             sampledImg = houghLines;
         }
+
+
         //Drawing lines on the image
 
 
         //   Imgproc.GaussianBlur(rgbImg,rgbImg, new Size(y,y),0.0);
         //  Imgproc.GaussianBlur(rgbImg,rgbImg,new Size(21,21),9);
         // Imgproc.cvtColor(rgbImg, newImg, Imgproc.COLOR_RGB2GRAY);
-/*
+
         Display display = getWindowManager().getDefaultDisplay();
         Point size = new Point();
         display.getSize(size);
 
         int mobile_width = size.x;
         int mobile_height = size.y;
-*/
 
-        //    sampledImg = setHoughLines(originImg);
 
-        //   int rows = newImg.rows();
-        //   int clmns = newImg.cols();
-
-        ///  Size sz = new Size(clmns / 2, rows / 2);
-        //  Imgproc.resize(newImg, sampledImg, sz);
+        sampledImg = rgbImg;
 
 
         // double downSampleRatio = calculateSubSimpleSize(rgbImg, mobile_width, mobile_height);
@@ -213,40 +296,8 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
     }
+*/
 
-
-        private Mat setHoughLines(Mat mat) {
-
-            Mat grayIMat = new Mat();
-            Mat cannyIMat = new Mat();
-            Mat houghLinesIMat = new Mat();
-
-            Imgproc.cvtColor(mat, grayIMat, Imgproc.COLOR_BGR2GRAY);
-            Imgproc.Canny(grayIMat, cannyIMat, 10, 100);
-            Imgproc.HoughLinesP(cannyIMat, houghLinesIMat, 1, Math.PI / 180, 50, 20, 20);
-
-            Mat houghLines = new Mat();
-           // houghLines.create(houghLinesIMat.rows(), houghLinesIMat.cols(), CvType.CV_8UC1);
-
-            //Drawing lines on the image
-            for (int i = 0; i < houghLinesIMat.cols(); i++) {
-                double[] points = houghLinesIMat.get(0, i);
-                double x1, y1, x2, y2;
-
-                x1 = points[0];
-                y1 = points[1];
-                x2 = points[2];
-                y2 = points[3];
-
-                Point pt1 = new Point(x1, y1);
-                Point pt2 = new Point(x2, y2);
-
-                //Drawing lines on an image
-                Imgproc.line(houghLines, pt1, pt2, new Scalar(255, 0, 0), 1);
-            }
-           return houghLines;
-
-        }
 
     private double calculateSubSimpleSize(Mat src, int mobile_width, int mobile_height) {
 
