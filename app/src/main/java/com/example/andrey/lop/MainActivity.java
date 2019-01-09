@@ -37,7 +37,7 @@ public class MainActivity extends AppCompatActivity {
     TextView infoTw;
     static int mark = 0;
     static int mark2 = 0;
-    Mat orImage, houghImage, houghCirculeImage, greyImage, cannyImage, gaussianImage;
+    Mat orImage, houghImage, houghCirculeImage, greyImage, cannyImage, gaussianImage,filter2DImage;
     int tX, tY;
     double Dx1, Dx2, Dy1, Dy2;
     int d;
@@ -60,8 +60,6 @@ public class MainActivity extends AppCompatActivity {
         bttn2 = findViewById(R.id.button2);
         bttn3 = findViewById(R.id.button3);
         infoTw = findViewById(R.id.tW);
-
-
     }
 
     public void openGallery(View v) {
@@ -83,16 +81,26 @@ public class MainActivity extends AppCompatActivity {
 
             getOriginImage(path);
 
+            if(mark!=1){
+                getGreyImage(orImage);
 
-            getHoughCircle(orImage);
+                displayImage(greyImage);
 
-            displayImage(houghCirculeImage);
+            }else{
+
+                getGreyImage(orImage);
+
+                get2DfilterImage(greyImage);
+
+                displayImage(filter2DImage);
+
+            }
 
             mark++;
         }
     }
 
-    Mat matImg1, matImg2;
+    Mat matImg1, matImg2, matImg3;
 
     private void displayImage(Mat mat) {
 
@@ -111,23 +119,47 @@ public class MainActivity extends AppCompatActivity {
         }
         if (mark == 2) {
             iV3.setImageBitmap(bitmap);
-            //  matImg3 = mat;
+            matImg3 = mat;
         }
     }
 
+    private Mat getGaussianImage(Mat matImage, int xSize, int ySize, double vSigma) {
+        // vSigma - more vSigma digit - more blur/smooth
+        Mat img = new Mat();
+        Imgproc.cvtColor(matImage, img, Imgproc.COLOR_BGR2GRAY);
+        // mask size more mask more pixeler
+        Size vSize = new Size();
+        vSize.height = ySize;
+        vSize.width = xSize;
+        Imgproc.GaussianBlur(img, img, vSize, vSigma);
+        gaussianImage = img;
+        didIt(gaussianImage, 50, 50);
+        return gaussianImage;
+        /*
+        switch (mark){
+            case 0:
+                xSize = ySize = 5;
+                break;
+            case 1:
+                xSize = ySize = 15;
+                break;
+            case 2:
+                xSize = ySize = 25;
+                break;
+        }
+        */
+    }
 
-    // method to get imate in Mat format resized down 4 times from path
+    // method to get image in Mat format resized down 4 times from path
     private Mat getOriginImage(String path) {
         Mat originImg = Imgcodecs.imread(path);// image is BGR format , try to get format
         int rows = originImg.rows();
         int clmns = originImg.cols();
-        Size sz = new Size(clmns / 4, rows / 4);
+        Size sz = new Size(clmns / 8, rows / 8);
         Imgproc.resize(originImg, originImg, sz);
         orImage = originImg;
         return orImage;
     }
-
-    //  Mat greyImage;
 
     // method to get image in gray color
     private Mat getGreyImage(Mat matImage) {
@@ -153,7 +185,6 @@ public class MainActivity extends AppCompatActivity {
         return cannyImage;
     }
 
-
     // method to image in gray color with Hough lines
     private Mat getHoughLinesImage(Mat matImage) {
         Mat rgbImg = new Mat();
@@ -170,12 +201,31 @@ public class MainActivity extends AppCompatActivity {
         // if pixel value lower then min_threshold  - pixel is suppressed
         Imgproc.Canny(rgbImg, cannyEdges, 80, 255);
         // threshold - min number of votes to set
-        //theta
+        //theta angle
+        // linesImage need to set lines coordinates
         Imgproc.HoughLinesP(cannyEdges, linesImage, 1, PI / 2, 40, 20, 20);
         hLImage.create(cannyEdges.rows(), cannyEdges.cols(), CvType.CV_8UC1);
         Dx1 = hLImage.cols();
         Dx2 = hLImage.rows();
+
         //Drawing lines on the image
+        for (int x = 0; x < linesImage.rows(); x++) {
+            double[] fer = linesImage.get(x, 0);
+
+            double x1 = fer[0],
+                    y1 = fer[1],
+                    x2 = fer[2],
+                    y2 = fer[3];
+
+            Point start = new Point(x1, y1);
+            Point end = new Point(x2, y2);
+
+            Imgproc.line(hLImage, start, end, new Scalar(255, 0, 0), 1);
+        }
+
+        houghImage = hLImage;
+        return houghImage;
+
 /*
         for (int i = 0; i < linesImage.cols(); i++) {
 
@@ -195,50 +245,14 @@ public class MainActivity extends AppCompatActivity {
         }
 */
 
-
-        for (int x = 0; x < linesImage.rows(); x++) {
-            double[] fer = linesImage.get(x, 0);
-
-            double x1 = fer[0],
-                    y1 = fer[1],
-                    x2 = fer[2],
-                    y2 = fer[3];
-
-            Point start = new Point(x1, y1);
-            Point end = new Point(x2, y2);
-
-            //  double dx = x1 - x2;
-            // double dy = y1 - y2;
-
-            // double dist = Math.sqrt(dx * dx + dy * dy);
-
-            Imgproc.line(hLImage, start, end, new Scalar(255, 0, 0), 1);
-            // Dx1 = linesImage.cols();
-            // Dx2 = linesImage.rows();;
-            //y1 = y1;
-            //y2 = y2;
-            // = fer.length;
-
-
-        }
-
-
-        houghImage = hLImage;
-        return houghImage;
-    }
-
-    private Mat getGaussianImage(Mat matImage, int xSize, int ySize, double vSigma) {
-
-        // vSigma - more vSigma digit - more smoother
-        Mat img = new Mat();
-        Imgproc.cvtColor(matImage, img, Imgproc.COLOR_BGR2GRAY);
-        // mask size
-        Size vSize = new Size();
-        vSize.height = ySize;
-        vSize.width = xSize;
-        Imgproc.GaussianBlur(img, img, vSize, vSigma);
-        gaussianImage = img;
-        return gaussianImage;
+        //  double dx = x1 - x2;
+        // double dy = y1 - y2;
+        // double dist = Math.sqrt(dx * dx + dy * dy);
+        // Dx1 = linesImage.cols();
+        // Dx2 = linesImage.rows();;
+        //y1 = y1;
+        //y2 = y2;
+        // = fer.length;
     }
 
     private Mat getHoughCircle(Mat matImage) {
@@ -272,7 +286,6 @@ public class MainActivity extends AppCompatActivity {
         houghCirculeImage = circlatImg;
         return houghCirculeImage;
     }
-
 
     private double calculateSubSimpleSize(Mat src, int mobile_width, int mobile_height) {
 
@@ -308,52 +321,25 @@ public class MainActivity extends AppCompatActivity {
         return uri.getPath();
     }
 
+    // method to get pixel value
     public void didIt(Mat mImage, int aRow, int aCol) {
-
-        mImage.convertTo(mImage, CvType.CV_8UC1);
-
+        //  mImage.convertTo(mImage, CvType.CV_8UC1);
         double[] ft = mImage.get(aRow, aCol);
-/*
+
         for (int i = 0; i < 10; i++) {
 
             double[] ft3 = mImage.get(10 + i, 20 + i);
             double b = ft3[0];
             infoTw.append(b + " , ");
         }
-*/
-
-        double bwVal = ft[0];
-
-        infoTw.setText(bwVal + "");
-
     }
+
 
     public void actionAny(View view, Mat mImage, int aRow, int aCol) {
 
-
-        //  changedImg.convertTo(changedImg,CvType.CV_16UC1);
         int rows1 = mImage.rows();
         int clmns1 = mImage.cols();
 
-
-        //  int rows2 = matImg2.rows();
-        // int clmns2 = matImg2.cols();
-        // int chn = changedImg.channels();
-        // changedImg.convertTo(changedImg,CV_8U);
-        // int sRbgColor = changedImg.getRGB(int x, int y);
-        //   int t = changedImg.get(50, 50);
-
-     /*   for (int i = 0; i < 10; i++) {
-
-            double[] ft = changedImg.get(10 + i, 20 + i);
-            double b = ft[0];
-            infoTw.append(b + " , ");
-            }
-
-   */
-
-        // infoTw.setText("rows 1 = " + rows1 + " , columns 1 = " + clmns1 + '\n' + "rows 2 = " + rows2 + " , columns 2 = " + clmns2);
-        //  infoTw.setText("rows 1 = " + rows2 + " , columns 1 = " + clmns2 );
 
         double[] ft1 = mImage.get(aRow, aCol);
 
@@ -371,24 +357,34 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    //
     public void summary(View view) {
-
         // infoTw.setText(Dx1+" , " +Dx2+" , " +Dy1+" , " +Dy1+" , " +d);
-        Point start = new Point(100, 100);
-        Point end = new Point(300, 100);
-
-
+        //  Point start = new Point(100, 100);
+        // Point end = new Point(300, 100);
         // Imgproc.line(greyImage, start, end, new Scalar(255, 0, 0), 1);
         // displayImage(greyImage);
-        didIt(greyImage, 100, 700);
+        // didIt(greyImage, 100, 700);
         // Mat matImg3 = new Mat();
         //   int r = greyImage.rows();
         //  int c = greyImage.cols();
         //   infoTw.setText(r + " , " + c);
-        //  Core.addWeighted(matImg1,0.7,matImg2,0.3,0.0,matImg3);
+        Core.addWeighted(matImg1, 0.7, matImg2, 0.3, 0.0, matImg3);
         // Core.add(matImg1, matImg2, matImg3);
-        // displayImage(matImg3);
+        displayImage(matImg3);
 
+    }
+
+    // method to image after 2Dfilter
+    private Mat get2DfilterImage(Mat mat) {
+
+        Mat img = new Mat();
+        Mat kern = new Mat(3, 3, CvType.CV_8S);
+        int row = 0, col = 0;
+        kern.put(row, col, 0, -1, 0, -1, 5, -1, 0, -1, 0);
+        Imgproc.filter2D(mat, img, mat.depth(), kern);
+        filter2DImage = img;
+        return filter2DImage;
     }
 
     /*
