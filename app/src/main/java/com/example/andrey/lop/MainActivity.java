@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 //import android.graphics.Point;
-import android.media.ExifInterface;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
@@ -14,20 +13,20 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.andrey.lop.ImageActions.BasicDrawing;
+import com.example.andrey.lop.ImageActions.FindEdgesViaMorfOptns;
+import com.example.andrey.lop.ImageActions.GrayImage;
+import com.example.andrey.lop.ImageActions.OriginalImage;
+import com.example.andrey.lop.ImageActions.PyramidActions;
+import com.example.andrey.lop.ImageActions.ScharrImage;
+import com.example.andrey.lop.ImageActions.SobelImage;
+
 import org.opencv.android.OpenCVLoader;
 import org.opencv.android.Utils;
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
-import org.opencv.core.Point;
 import org.opencv.core.Mat;
 import org.opencv.core.Scalar;
-import org.opencv.core.Size;
-import org.opencv.imgcodecs.Imgcodecs;
-import org.opencv.imgproc.Imgproc;
-
-import java.io.IOException;
-
-import static java.lang.Math.PI;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -37,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
     TextView infoTw;
     static int mark = 0;
     static int mark2 = 0;
-    Mat oImage, houghImage, houghCirculeImage, greyImage, cannyImage, gaussianImage, filter2DImage;
+    Mat oImage, houghImage, houghCirculeImage, greyImage, cannyImage, gaussianImage, filter2DImage_2, filter2DImage;
     int tX, tY;
     double Dx1, Dx2, Dy1, Dy2;
     int d;
@@ -83,19 +82,37 @@ public class MainActivity extends AppCompatActivity {
 
             oImage = OriginalImage.GetOriginalImage(path, 8, 8);
 
-          //  greyImage = GrayImage.GetGrayImage(oImage);
+            greyImage = GrayImage.GetGrayImage(oImage);
 
-          //  gaussianImage = GaussianImage.GetGaussianImage(oImage,15,15,5);
+            //  gaussianImage = GaussianImage.GetGaussianImage(oImage,15,15,5);
 
-           // cannyImage = CannyImage.GetCannyImage(oImage,100,150);
+            // cannyImage = CannyImage.GetCannyImage(oImage,100,150);
 
-           // houghImage = HoughLinesImage.GetHoughLinesImage(oImage);
+            // houghImage = HoughLinesImage.GetHoughLinesImage(oImage);
 
-          //  houghCirculeImage = HoughCircle.GetHoughCircle(oImage);
+            //  houghCirculeImage = HoughCircle.GetHoughCircle(oImage);
 
-            filter2DImage = TwoD_image.GetTwoD_Image(oImage);
+            // filter2DImage = TwoD_image.GetTwoD_Image(oImage);
 
-            displayImage(filter2DImage);
+          //  filter2DImage_2 = TwoD_image.GetTwoD_Image_2(oImage);
+
+            switch (mark) {
+
+                case 0:
+
+                    displayImage(SobelImage.getSobelImage(oImage));
+                   // didIt(greyImage);
+                    break;
+                case 1:
+                    displayImage(ScharrImage.getScharrImage(oImage));
+                 //   didIt(filter2DImage_2);
+                    break;
+                case 2:
+                    displayImage(PyramidActions.getPyrUpImg(PyramidActions.getPyrDownImg(oImage)));
+                    break;
+
+            }
+            // displayImage(PyramidActions.getPyrDownImg(oImage));
 /*
             if(mark!=1){
 
@@ -188,23 +205,75 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public void didIt(Mat mImage) {
+        //  mImage.convertTo(mImage, CvType.CV_8UC1);
+        for (int i = 0; i < 5; i++) {
+            for (int k = 0; k < 5; k++) {
 
-    public void actionAny(View view, Mat mImage, int aRow, int aCol) {
+                double[] ft1 = mImage.get(k, i);
+                double bf1 = ft1[0];
+                infoTw.append(bf1 + " , ");
+            }
+            infoTw.append("\n");
+        }
+        infoTw.append("\n");
+        infoTw.append("\n");
+    }
 
-        int rows1 = mImage.rows();
-        int clmns1 = mImage.cols();
+
+    public void actionAny(View view, Mat countImg) {
+
+        //  Mat kernel = new Mat();
+        // Mat ones = Mat.ones(3, 3, CvType.CV_32F);
+        // Core.multiply(ones, new Scalar(1 / (double) (3 * 3)), kernel);
+
+        // int rows1 = mImage.rows();
+        // int clmns1 = mImage.cols();
 
 
-        double[] ft1 = mImage.get(aRow, aCol);
+        for (int i = 0; i < 5; i++) {
 
-        double bf1 = ft1[0];//rows = 4160 clmns = 3120
+
+            for (int k = 0; k < 5; k++) {
+
+                double[] ft1 = matImg1.get(k, i);
+                double bf1 = ft1[0];
+                infoTw.append(bf1 + " , ");
+
+            }
+            infoTw.append("\n");
+
+        }
+        infoTw.append("\n");
+        infoTw.append("\n");
+
+        for (int i = 0; i < 5; i++) {
+
+
+            for (int k = 0; k < 5; k++) {
+
+                double[] ft1 = matImg2.get(k, i);
+                double bf1 = ft1[0];
+                infoTw.append(bf1 + " , ");
+
+            }
+            infoTw.append("\n");
+
+        }
+        infoTw.append("\n");
+        infoTw.append("\n");
+        // double[] ft1 = kernel.get(1, 1);
+        // double bf1 = ft1[0];//rows = 4160 clmns = 3120
+
+
         //  double g =  ft[1];
         //  double r =  ft[2];
-        // changedImg.get(50, 50);
+        //  changedImg.get(50, 50);
 
         //  long s = (int) changedImg.total();
 
-        infoTw.setText((int) bf1);
+
+        // infoTw.setText("" + bf1);
         // infoTw.setText(rows + " " + clmns + " " + chn + " " + "b = " + b + " g = " + g +  " r = " + r );
         // infoTw.setText(rows + " " + clmns + " " + chn + " " + "b = " + b );
 
@@ -223,9 +292,11 @@ public class MainActivity extends AppCompatActivity {
         //   int r = greyImage.rows();
         //  int c = greyImage.cols();
         //   infoTw.setText(r + " , " + c);
-        Core.addWeighted(matImg1, 0.7, matImg2, 0.3, 0.0, matImg3);
+        // Core.addWeighted(matImg1, 0.7, matImg2, 0.3, 0.0, matImg3);
         // Core.add(matImg1, matImg2, matImg3);
-        displayImage(matImg3);
+
+
+        displayImage(BasicDrawing.DrawAtom());
 
     }
 

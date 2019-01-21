@@ -1,4 +1,4 @@
-package com.example.andrey.lop;
+package com.example.andrey.lop.ImageActions;
 
 import org.opencv.core.Mat;
 import org.opencv.imgproc.Imgproc;
@@ -16,6 +16,7 @@ public class CannyImage {
         // if pixel value more then max_threshold  - pixel is marked as strong
         // if pixel value lower then max_threshold &  more then min_threshold - pixel is marked as weak
         // if pixel value lower then min_threshold  - pixel is suppressed
+        // Canny recommended a upper:lower ratio between 2:1 and 3:1.
         Imgproc.Canny(img, img, min_threshold, max_threshold);
         return img;
     }

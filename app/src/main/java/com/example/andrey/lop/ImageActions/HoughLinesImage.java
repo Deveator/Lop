@@ -1,4 +1,4 @@
-package com.example.andrey.lop;
+package com.example.andrey.lop.ImageActions;
 
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
