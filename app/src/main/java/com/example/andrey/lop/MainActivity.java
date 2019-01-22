@@ -18,6 +18,7 @@ import com.example.andrey.lop.ImageActions.FindEdgesViaMorfOptns;
 import com.example.andrey.lop.ImageActions.GrayImage;
 import com.example.andrey.lop.ImageActions.OriginalImage;
 import com.example.andrey.lop.ImageActions.PyramidActions;
+import com.example.andrey.lop.ImageActions.RemapImage;
 import com.example.andrey.lop.ImageActions.ScharrImage;
 import com.example.andrey.lop.ImageActions.SobelImage;
 
@@ -82,7 +83,7 @@ public class MainActivity extends AppCompatActivity {
 
             oImage = OriginalImage.GetOriginalImage(path, 8, 8);
 
-            greyImage = GrayImage.GetGrayImage(oImage);
+              greyImage = GrayImage.GetGrayImage(oImage);
 
             //  gaussianImage = GaussianImage.GetGaussianImage(oImage,15,15,5);
 
@@ -94,18 +95,24 @@ public class MainActivity extends AppCompatActivity {
 
             // filter2DImage = TwoD_image.GetTwoD_Image(oImage);
 
-          //  filter2DImage_2 = TwoD_image.GetTwoD_Image_2(oImage);
+            //  filter2DImage_2 = TwoD_image.GetTwoD_Image_2(oImage);
 
             switch (mark) {
 
                 case 0:
 
-                    displayImage(SobelImage.getSobelImage(oImage));
-                   // didIt(greyImage);
+                    displayImage(RemapImage.getRemappedImage(oImage, 1));
+
+                    float dat[] = new float[(int) greyImage.total()];
+                    infoTw.append(greyImage.get(0, 0, dat) + " , ");
+                    infoTw.append(" \n ");
+                    infoTw.append(" \n ");
+                    // infoTw.append(oImage.get(0,0)+ " , ");
+                    // didIt(greyImage);
                     break;
                 case 1:
                     displayImage(ScharrImage.getScharrImage(oImage));
-                 //   didIt(filter2DImage_2);
+                    //   didIt(filter2DImage_2);
                     break;
                 case 2:
                     displayImage(PyramidActions.getPyrUpImg(PyramidActions.getPyrDownImg(oImage)));
