@@ -68,7 +68,7 @@ public class AffineImage {
         // ritMat - rotation Matrix
         // warpDst.size() - desired size
         Imgproc.warpAffine(warpDst, warpRotateDst, rotMat, warpDst.size());
-        
+
         return warpRotateDst;
     }
 }

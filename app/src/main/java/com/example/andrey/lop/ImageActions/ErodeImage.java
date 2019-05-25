@@ -11,11 +11,12 @@ import static org.opencv.imgproc.Imgproc.MORPH_RECT;
 public class ErodeImage {
 
     public static Mat getErodeImage(Mat mImg){
+
         Mat img = new Mat();
 
         Size kSize = new Size();
-        kSize.height = 7;
-        kSize.width = 7;
+        kSize.height = 5;
+        kSize.width = 5;
         Point kPoint = new Point();
         kPoint.x = 3;
         kPoint.y = 3;

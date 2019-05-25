@@ -1,5 +1,6 @@
 package com.example.andrey.lop;
 
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -8,39 +9,80 @@ import android.net.Uri;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.andrey.lop.ImageActions.BasicDrawing;
-import com.example.andrey.lop.ImageActions.FindEdgesViaMorfOptns;
+import com.example.andrey.lop.ImageActions.CannyImage;
+import com.example.andrey.lop.ImageActions.ContourImage;
+import com.example.andrey.lop.ImageActions.DilateImage;
+import com.example.andrey.lop.ImageActions.ErodeImage;
+import com.example.andrey.lop.ImageActions.FaceDetect;
+import com.example.andrey.lop.ImageActions.FindContourImage;
+import com.example.andrey.lop.ImageActions.FromWhiteToBlackBackgrnd;
+import com.example.andrey.lop.ImageActions.FullBody;
+import com.example.andrey.lop.ImageActions.GaussianImage;
+import com.example.andrey.lop.ImageActions.GetHUEValue;
 import com.example.andrey.lop.ImageActions.GrayImage;
+import com.example.andrey.lop.ImageActions.LabClass;
+import com.example.andrey.lop.ImageActions.LabImg;
 import com.example.andrey.lop.ImageActions.OriginalImage;
-import com.example.andrey.lop.ImageActions.PyramidActions;
-import com.example.andrey.lop.ImageActions.RemapImage;
-import com.example.andrey.lop.ImageActions.ScharrImage;
+import com.example.andrey.lop.ImageActions.SURFFLANNMatchingHomography;
 import com.example.andrey.lop.ImageActions.SobelImage;
+import com.example.andrey.lop.ImageActions.TestClass;
 
 import org.opencv.android.OpenCVLoader;
 import org.opencv.android.Utils;
-import org.opencv.core.Core;
-import org.opencv.core.CvType;
 import org.opencv.core.Mat;
+import org.opencv.core.MatOfPoint;
+import org.opencv.core.Point;
 import org.opencv.core.Scalar;
+import org.opencv.core.Size;
+import org.opencv.imgproc.Imgproc;
+import org.opencv.objdetect.CascadeClassifier;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
+
+import static com.example.andrey.lop.ImageActions.FindContourImage.contours2;
+import static com.example.andrey.lop.ImageActions.FindContourImage.xCorC;
+import static com.example.andrey.lop.ImageActions.FindContourImage.yCorC;
+import static com.example.andrey.lop.ImageActions.LabClass.x_Cor;
+import static com.example.andrey.lop.ImageActions.LabClass.y_Cor;
+import static com.example.andrey.lop.ImageActions.LabImg.xCor;
+import static com.example.andrey.lop.ImageActions.LabImg.yCor;
+import static com.example.andrey.lop.ImageActions.TestClass.allX;
+import static com.example.andrey.lop.ImageActions.TestClass.allY;
 
 
 public class MainActivity extends AppCompatActivity {
 
-    ImageView iV, iV2, iV3;
+    public static ArrayList<Integer> xCoo = new ArrayList<>();
+    public static ArrayList<Integer> yCoo = new ArrayList<>();
+
+    public static ArrayList<Double> DCol1 = new ArrayList<>();
+    public static ArrayList<Double> DCol2 = new ArrayList<>();
+    public static ArrayList<Double> DCol3 = new ArrayList<>();
+
+    public static double blueVal, greenVal, redVal;
+
+    ImageView iV, iV2, iV3, iV4;
     Button bttn, bttn2, bttn3;
     TextView infoTw;
     static int mark = 0;
     static int mark2 = 0;
-    Mat oImage, houghImage, houghCirculeImage, greyImage, cannyImage, gaussianImage, filter2DImage_2, filter2DImage;
+    Mat oImage, oImage2, houghImage, helpImg, houghCirculeImage, greyImage, greyImage2, cannyImage, gaussianImage, filter2DImage_2, filter2DImage, preImg, preImg_2, anPreImg;
     int tX, tY;
     double Dx1, Dx2, Dy1, Dy2;
     int d;
+    public static String path;
+    public static CascadeClassifier cascadeClassifier;
 
     //  Mat sampledImg = new Mat();
     //  Mat rgbImg = new Mat();
@@ -51,11 +93,13 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         System.loadLibrary("opencv_java3");
+        //   System.loadLibrary("opencv");
         OpenCVLoader.initDebug();
 
         iV = findViewById(R.id.imageV);
         iV2 = findViewById(R.id.imageV2);
         iV3 = findViewById(R.id.imageV3);
+        iV4 = findViewById(R.id.imageV4);
         bttn = findViewById(R.id.button1);
         bttn2 = findViewById(R.id.button2);
         bttn3 = findViewById(R.id.button3);
@@ -77,17 +121,34 @@ public class MainActivity extends AppCompatActivity {
 
             Uri imageUri = data.getData();
 
-            String path = getPath(imageUri);
+            path = getPath(imageUri);
 
             // loadImage(path);
 
-            oImage = OriginalImage.GetOriginalImage(path, 8, 8);
+            oImage = OriginalImage.GetOriginalImage(path, 4, 4);
+            oImage2 = OriginalImage.GetOriginalImage(path, 4, 4);
 
-              greyImage = GrayImage.GetGrayImage(oImage);
+            //Imgproc.cvtColor(oImage,oImage,Imgproc.COLOR_BGR2Lab);
+            //Imgproc.cvtColor(oImage, oImage, Imgproc.COLOR_BGR2HSV);
 
-            //  gaussianImage = GaussianImage.GetGaussianImage(oImage,15,15,5);
+            //   oImage = OriginalImage.GetOriginalImage2(path);
 
-            // cannyImage = CannyImage.GetCannyImage(oImage,100,150);
+
+            //  greyImage2 = GrayImage.GetGrayImage(oImage);
+
+            //  greyImage = GrayImage.GetGrayImage(oImage);
+
+            /// Imgproc.rectangle(greyImage, new Point(greyImage.cols() / 4, greyImage.rows() / 2),
+            ////        new Point(greyImage.cols() / 4 + 150, greyImage.rows() / 2 + 100), new Scalar(255, 0, 0), 2, 8, 0);
+
+            //  gaussianImage = GaussianImage.GetGaussianImage(oImage,3,3,5);
+
+            // filter2DImage = TwoD_image.GetTwoD_Image(oImage);
+            //Imgproc.cvtColor(oImage, oImage, Imgproc.COLOR_BGR2GRAY);
+            //  Mat dst = new Mat();
+            //  Imgproc.equalizeHist( oImage, dst );
+            //   preImg = ErodeImage.getErodeImage(oImage);
+            //   cannyImage = CannyImage.GetCannyImage(dst,100,200);
 
             // houghImage = HoughLinesImage.GetHoughLinesImage(oImage);
 
@@ -96,30 +157,119 @@ public class MainActivity extends AppCompatActivity {
             // filter2DImage = TwoD_image.GetTwoD_Image(oImage);
 
             //  filter2DImage_2 = TwoD_image.GetTwoD_Image_2(oImage);
+            //  CascadeClassifier faceCascade = new CascadeClassifier();
+            //   CascadeClassifier eyesCascade = new CascadeClassifier();
+/*
+            try {
+                InputStream is = getResources().openRawResource(R.raw.haarcascade_frontalface_alt);
+
+                File cascadeDir = getDir("cascade", Context.MODE_PRIVATE);
+
+                File mCascadeFile = new File(cascadeDir, "cascade.xml");
+
+                FileOutputStream os = new FileOutputStream(mCascadeFile);
+
+
+                byte[] buffer = new byte[4096];
+                int bytesRead;
+
+                while ((bytesRead = is.read(buffer)) != -1) {
+                    os.write(buffer, 0, bytesRead);
+                }
+
+                is.close();
+                os.close();
+
+                // Load the cascade classifier
+                cascadeClassifier = new CascadeClassifier(mCascadeFile.getAbsolutePath());
+                cascadeClassifier.load(mCascadeFile.getAbsolutePath());
+                if (cascadeClassifier.empty()) {
+                    Log.e("dd", "Failed to load cascade classifier");
+                    cascadeClassifier = null;
+                }
+            } catch (Exception e) {
+                Log.e("OpenCVActivity", "Error loading cascade", e);
+            }
+
+*/
+            // System.out.println(path);
+            // faceCascade.load(path);
+            //   eyesCascade.load(path);
+
 
             switch (mark) {
 
                 case 0:
 
-                    displayImage(RemapImage.getRemappedImage(oImage, 1));
 
-                    float dat[] = new float[(int) greyImage.total()];
-                    infoTw.append(greyImage.get(0, 0, dat) + " , ");
-                    infoTw.append(" \n ");
-                    infoTw.append(" \n ");
-                    // infoTw.append(oImage.get(0,0)+ " , ");
-                    // didIt(greyImage);
+                    //   anPreImg = TwoD_image.GetTwoD_Image(oImage);
+                    ///  LabClass.calculate(oImage);
+                    // anPreImg = TwoD_image.GetTwoD_Image(oImage);
+                    ///  preImg = changeColor(oImage);
+
+                    /// preImg = TwoD_image.GetTwoD2_Image(anPreImg);
+                    /// preImg = ErodeImage.getErodeImage(anPreImg);
+                    ///  anPreImg = ErodeImage.getErodeImage(anPreImg);
+                    /// helpImg = ContourImage.getMainContourImage(preImg);
+                    //   displayImage(oImage);
+                    ///  System.out.println(oImage.cols());
+                    ///  System.out.println(oImage.rows());
+
+
+                    //   LabClass.upDownStage(oImage);
+                    // makes white background
+                    //   preImg = changeColor(oImage);
+
+                    //    LabClass.leftRightStage(preImg);
+
+                    //    preImg = changeColor(preImg);
+
+                    LabClass.calculate(oImage);
+
+                    preImg = changeColor(oImage);
+
+                   // LabClass.leftRightStage(preImg);
+
+                   // preImg = changeColor(preImg);
+
+
+                     anPreImg = ErodeImage.getErodeImage(preImg);
+
+                     helpImg = ContourImage.getMainContourImage(anPreImg);
+
+                    displayImage(preImg);
+
                     break;
                 case 1:
-                    displayImage(ScharrImage.getScharrImage(oImage));
+                    Mat sMat = oImage.submat(200, 300, 0, 100);
+
+                    Imgproc.blur(sMat, sMat, new Size(3, 3));
+
+                    displayImage(setBlack(GrayImage.GetGrayImage(sMat)));
+                    //  getAverage(sMat);
+                    // displayImage(FindContourImage.getContourImg(sMat));
+                    //  displayImage(sMat);
+                    //  displayImage(FaceDetect.getFaceDetect(oImage, getCascadeClassifier(R.raw.haarcascade_frontalface_alt)));
                     //   didIt(filter2DImage_2);
                     break;
                 case 2:
-                    displayImage(PyramidActions.getPyrUpImg(PyramidActions.getPyrDownImg(oImage)));
+                    Mat sMat2 = oImage.submat(200, 300, 101, 290);
+
+                    Imgproc.blur(sMat2, sMat2, new Size(3, 3));
+
+                    displayImage(setBlack2(GrayImage.GetGrayImage(sMat2)));
+                    //  displayImage(FindContourImage.getContourImg(sMat2));
+                    break;
+                case 3:
+                    Mat sMat3 = oImage.submat(100, 300, 291, 389);
+                    displayImage(FromWhiteToBlackBackgrnd.getFromWhiteToBlackBackgrnd(sMat3));
+                    //  displayImage(FindContourImage.getContourImg(sMat3));
                     break;
 
             }
-            // displayImage(PyramidActions.getPyrDownImg(oImage));
+
+
+            // displayImage(AffineImage.getAffinedImage(oImage));
 /*
             if(mark!=1){
 
@@ -141,7 +291,207 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    Mat matImg1, matImg2, matImg3;
+    public static Mat changeColor(Mat inputImg) {
+
+
+        for (int i = 0; i < x_Cor.size(); i++) {
+            double[] g = {255.0, 255.0, 255.0};
+            inputImg.put(y_Cor.get(i), x_Cor.get(i), g);
+        }
+
+        x_Cor.clear();
+        y_Cor.clear();
+        System.out.println("x_Cor size after clean: " + x_Cor.size());
+        return inputImg;
+
+    }
+
+    public static Mat cloneMat(Mat inputImg) {
+
+        for (int i = 0; i < 100; i++) {
+            for (int y = 0; y < 100; y++) {
+                double[] g = {255.0, 255.0, 255.0};
+                inputImg.put(i, y, g);
+            }
+        }
+        return inputImg;
+    }
+
+    // method to make black image with original dimensions
+    public static Mat retMat(Mat my) {
+
+        for (int x = 0; x < my.cols(); x++) {
+            for (int y = 0; y < my.rows(); y++) {
+
+                double[] dVal = {0.0, 0.0, 0.0};
+                my.put(y, x, dVal);
+            }
+        }
+        return my;
+    }
+
+
+    public CascadeClassifier getCascadeClassifier(int resource) {
+        try {
+            InputStream is = getResources().openRawResource(resource);
+
+            File cascadeDir = getDir("cascade", Context.MODE_PRIVATE);
+
+            File mCascadeFile = new File(cascadeDir, "cascade.xml");
+
+            FileOutputStream os = new FileOutputStream(mCascadeFile);
+
+
+            byte[] buffer = new byte[4096];
+            int bytesRead;
+
+            while ((bytesRead = is.read(buffer)) != -1) {
+                os.write(buffer, 0, bytesRead);
+            }
+
+            is.close();
+            os.close();
+
+            // Load the cascade classifier
+            cascadeClassifier = new CascadeClassifier(mCascadeFile.getAbsolutePath());
+            cascadeClassifier.load(mCascadeFile.getAbsolutePath());
+            if (cascadeClassifier.empty()) {
+                Log.e("dd", "Failed to load cascade classifier");
+                cascadeClassifier = null;
+            }
+
+        } catch (Exception e) {
+            Log.e("OpenCVActivity", "Error loading cascade", e);
+        }
+
+        return cascadeClassifier;
+    }
+
+    private byte saturate(double val) {
+        int iVal = (int) Math.round(val);
+        iVal = iVal > 255 ? 255 : (iVal < 0 ? 0 : iVal);
+        return (byte) iVal;
+    }
+
+    public static void getAverage(Mat matImg) {
+
+        double[] ft1 = matImg.get(50, 50);
+        for (int i = 0; i < ft1.length; i++) {
+            System.out.println(ft1[i]);
+
+        }
+
+        double[] g = {0.0, 25.0, 89.0};
+        matImg.put(50, 50, g);
+
+        double[] ft2 = matImg.get(50, 50);
+        for (int i = 0; i < ft2.length; i++) {
+            System.out.println(ft2[i]);
+
+        }
+
+        /*
+
+        int count = 0;
+        double av = 0.0;
+        for (int row = 0; row < 100; row++) {
+
+            for (int col = 0; col < 100; col++) {
+
+                count++;
+
+                double[] ft1 = matImg.get(row, col);
+
+                double bf1 = ft1[0];
+
+                int u = (int) bf1;
+
+                av = av + bf1;
+
+                System.out.print(u + ",");
+
+                //   infoTw.append(bf1 + " , ");
+            }
+            System.out.println("\n");
+            // System.out.println("--------" + count + "-----------");
+            // infoTw.append("\n");
+        }
+
+*/
+        // double[] ft2 = matImg.get(50, 0);
+        //  double Lbf2 = ft2[0];
+        //  double[] ft3 = matImg.get(50, 75);
+        // double Rbf2 = ft3[0];
+        //  System.out.println("COUNT = " + count);
+        //  System.out.println("AVERAGE = " + av / count);
+        //  System.out.println("LEFT = " + Lbf2);
+        //  System.out.println("RIGHT = " + Rbf2);
+
+
+    }
+
+    public static Mat setBlack(Mat matImg) {
+
+        //  int count = 0;
+        //  double av = 0.0;
+        for (int row = 0; row < 100; row++) {
+
+            for (int col = 0; col < 100; col++) {
+
+                //  count++;
+
+                double[] ft1 = matImg.get(row, col);
+
+                double bf1 = ft1[0];
+                //  double bf2 = ft1[1];
+                //   double bf3 = ft1[2];
+
+                if (bf1 > 105.0) {
+
+                    bf1 = 0.0;
+
+                    //  double[] ft2 = {bf1, bf2, bf3};
+
+                } else {
+                    bf1 = 255.0;
+                    //  matImg.put(row, col, bf1);
+                }
+                matImg.put(row, col, bf1);
+            }
+        }
+        return matImg;
+    }
+
+    public static Mat setBlack2(Mat matImg) {
+
+        //  int count = 0;
+        //  double av = 0.0;
+        for (int row = 0; row < 100; row++) {
+
+            for (int col = 0; col < 189; col++) {
+
+                //  count++;
+
+                double[] ft1 = matImg.get(row, col);
+
+                double bf1 = ft1[0];
+                //  double bf2 = ft1[1];
+                //   double bf3 = ft1[2];
+
+                if (bf1 > 105.0) {
+
+                    bf1 = 0.0;
+
+                } else {
+                    bf1 = 255.0;
+                }
+                matImg.put(row, col, bf1);
+            }
+        }
+        return matImg;
+    }
+
+    Mat matImg1, matImg2, matImg3, matImg4;
 
     private void displayImage(Mat mat) {
 
@@ -161,6 +511,10 @@ public class MainActivity extends AppCompatActivity {
         if (mark == 2) {
             iV3.setImageBitmap(bitmap);
             matImg3 = mat;
+        }
+        if (mark == 3) {
+            iV4.setImageBitmap(bitmap);
+            matImg4 = mat;
         }
     }
 
@@ -230,6 +584,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void actionAny(View view, Mat countImg) {
 
+
         //  Mat kernel = new Mat();
         // Mat ones = Mat.ones(3, 3, CvType.CV_32F);
         // Core.multiply(ones, new Scalar(1 / (double) (3 * 3)), kernel);
@@ -289,6 +644,14 @@ public class MainActivity extends AppCompatActivity {
 
     //
     public void summary(View view) {
+
+        getCoordinateArrays(helpImg);
+
+        //  TestClass.testCalculate();
+
+        getColorData();
+
+
         // infoTw.setText(Dx1+" , " +Dx2+" , " +Dy1+" , " +Dy1+" , " +d);
         //  Point start = new Point(100, 100);
         // Point end = new Point(300, 100);
@@ -302,8 +665,109 @@ public class MainActivity extends AppCompatActivity {
         // Core.addWeighted(matImg1, 0.7, matImg2, 0.3, 0.0, matImg3);
         // Core.add(matImg1, matImg2, matImg3);
 
+        //  double[] dVal = {255.0, 255.0, 255.0};
 
-        displayImage(BasicDrawing.DrawAtom());
+
+        //  helpImg.put(622,189,dVal);//
+
+        //int[] xC = {189, 190, 191, 192, 193, 194, 195, 196, 197, 198, 199, 200, 201};
+        // int[] yC = {622, 622, 623, 623, 623, 623, 623, 623, 623, 623, 622, 622, 622};
+
+
+        ///    getCordinateArrays(helpImg);
+
+        Mat nMat = retMat(helpImg);
+        for (int y = 0; y < xCoo.size(); y++) {
+            double[] dVal2 = {DCol1.get(y), DCol2.get(y), DCol2.get(y)};
+            nMat.put(yCoo.get(y), xCoo.get(y), dVal2);
+        }
+
+
+        displayImage(helpImg);
+
+    }
+
+    public void getColorData() {
+        for (int i = 0; i < xCoo.size(); i++) {
+            double[] vFull = oImage2.get(yCoo.get(i), xCoo.get(i));
+            DCol1.add(vFull[0]);
+            DCol2.add(vFull[1]);
+            DCol3.add(vFull[2]);
+        }
+    }
+
+    public void getCoordinateArrays(Mat pImg) {
+
+        Imgproc.blur(pImg, pImg, new Size(3, 3));
+        Imgproc.blur(pImg, pImg, new Size(3, 3));
+        // Imgproc.blur(pImg, pImg, new Size(3, 3));
+        // Imgproc.blur(pImg, pImg, new Size(3, 3));
+        for (int r = 0; r < pImg.rows(); r++) {
+            for (int c = 0; c < pImg.cols(); c++) {
+                double[] sc = pImg.get(r, c);
+                if ((sc[0] == blueVal) && (sc[1] == greenVal) && (sc[2] == redVal)) {
+                    xCoo.add(c);
+                    yCoo.add(r);
+                }
+            }
+        }
+        //System.out.println(88888888);
+        //System.out.println(xCoo.size());
+        // System.out.println(yCoo.size());
+    }
+
+    public void draftpolygon(Mat mImg) {
+
+        for (int r = 0; r < mImg.rows(); r++) {
+            for (int c = 0; c < mImg.cols(); c++) {
+                double[] dVal = {100.0, 100.0, 100.0};
+                mImg.put(r, c, dVal);
+            }
+        }
+
+        int lineType = 1;
+        int shift = 0;
+
+        Point[] rook_points = new Point[1252];
+        for (int i = 0; i < xCorC.size(); i++) {
+            rook_points[i] = new Point(xCorC.get(i), yCorC.get(i));
+
+        }
+        ///rook_points[0] = new Point(200, 400);
+        ///rook_points[1] = new Point(600, 450);
+        /// rook_points[2] = new Point(450, 750);
+        ///rook_points[3] = new Point(700, 750);
+        ///rook_points[4] = new Point(600, 850);
+        ///rook_points[5] = new Point(250, 800);
+        ///rook_points[6] = new Point(100, 500);
+        ///rook_points[7] = new Point(200, 400);
+        ///rook_points[8] = new Point(600, 450);
+
+        MatOfPoint matPt = new MatOfPoint();
+        matPt.fromArray(rook_points);
+        List<MatOfPoint> ppt = new ArrayList<MatOfPoint>();
+        ppt.add(matPt);
+
+        Imgproc.fillPoly(mImg, ppt, new Scalar(178, 149, 12), lineType, shift, new Point(0, 0));
+
+
+    }
+
+    public Mat drawLine(Mat img) {
+
+        Point start = new Point(100, 150);
+        Point end = new Point(200, 150);
+        Point start2 = new Point(100, 150);
+        Point end2 = new Point(100, 350);
+        Point start3 = new Point(100, 350);
+        Point end3 = new Point(200, 350);
+        Point start4 = new Point(200, 350);
+        Point end4 = new Point(200, 150);
+        Imgproc.line(img, start, end, new Scalar(0, 0, 0), 2);
+        Imgproc.line(img, start2, end2, new Scalar(0, 0, 0), 2);
+        Imgproc.line(img, start3, end3, new Scalar(0, 0, 0), 2);
+        Imgproc.line(img, start4, end4, new Scalar(0, 0, 0), 2);
+        return img;
 
     }
 

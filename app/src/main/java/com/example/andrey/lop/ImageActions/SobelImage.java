@@ -1,5 +1,8 @@
 package com.example.andrey.lop.ImageActions;
 
+import com.example.andrey.lop.Saturate;
+import com.example.andrey.lop.TwoD_image;
+
 import org.opencv.core.Mat;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
@@ -11,15 +14,33 @@ import static org.opencv.imgproc.Imgproc.COLOR_BGR2GRAY;
 
 public class SobelImage {
 
-    public static Mat getSobelImage(Mat mImg){
+    public static Mat getSobelImage(Mat mImg) {
 
-        Mat img = new Mat();
+         Mat img = new Mat();
         Mat imgX = new Mat();
         Mat imgY = new Mat();
+/*
 
-        Imgproc.GaussianBlur(mImg,img,new Size(3,3), 0, 0, BORDER_DEFAULT );
+        Mat img = Mat.zeros(mImg.size(), mImg.type());
 
-        Imgproc.cvtColor(img,img,COLOR_BGR2GRAY);
+        byte[] imageData = new byte[(int) (mImg.total() * mImg.channels())];
+        mImg.get(0, 0, imageData);
+        byte[] newImageData = new byte[(int) (img.total() * img.channels())];
+        for (int y = 0; y < mImg.rows(); y++) {
+            for (int x = 0; x < mImg.cols(); x++) {
+                for (int c = 0; c < mImg.channels(); c++) {
+                    double pixelValue = imageData[(y * mImg.cols() + x) * mImg.channels() + c];
+                    pixelValue = pixelValue < 0 ? pixelValue + 256 : pixelValue;
+                    newImageData[(y * mImg.cols() + x) * mImg.channels() + c]
+                            = Saturate.saturate(pixelValue + 40);
+                }
+            }
+        }
+        img.put(0, 0, newImageData);
+*/
+        Imgproc.GaussianBlur(mImg, img, new Size(3, 3), 0, 0, BORDER_DEFAULT);
+        //   TwoD_image.GetTwoD_Image(img);
+        //Imgproc.cvtColor(img, img, COLOR_BGR2GRAY);
 
         Imgproc.Sobel(img, imgX, img.depth(), 1, 0, 3, 1, 0, BORDER_DEFAULT);
         Imgproc.Sobel(img, imgY, img.depth(), 0, 1, 3, 1, 0, BORDER_DEFAULT);
