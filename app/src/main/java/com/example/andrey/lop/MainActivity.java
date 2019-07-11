@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 //import android.graphics.Point;
 import android.net.Uri;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -14,7 +15,9 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.example.andrey.lop.CustomView.DrawRect;
 import com.example.andrey.lop.ImageActions.BasicDrawing;
 import com.example.andrey.lop.ImageActions.CannyImage;
 import com.example.andrey.lop.ImageActions.ContourImage;
@@ -49,10 +52,22 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
+import static com.example.andrey.lop.CustomView.DrawRect.xGreen;
+import static com.example.andrey.lop.CustomView.DrawRect.xOrg;
+import static com.example.andrey.lop.CustomView.DrawRect.xRed;
+import static com.example.andrey.lop.CustomView.DrawRect.xYell;
+import static com.example.andrey.lop.CustomView.DrawRect.yGreen;
+import static com.example.andrey.lop.CustomView.DrawRect.yOrg;
+import static com.example.andrey.lop.CustomView.DrawRect.yRed;
+import static com.example.andrey.lop.CustomView.DrawRect.yYell;
 import static com.example.andrey.lop.ImageActions.FindContourImage.contours2;
 import static com.example.andrey.lop.ImageActions.FindContourImage.xCorC;
 import static com.example.andrey.lop.ImageActions.FindContourImage.yCorC;
+import static com.example.andrey.lop.ImageActions.LabClass.all_A_Values;
+import static com.example.andrey.lop.ImageActions.LabClass.all_B_Values;
+import static com.example.andrey.lop.ImageActions.LabClass.all_C_Values;
 import static com.example.andrey.lop.ImageActions.LabClass.x_Cor;
 import static com.example.andrey.lop.ImageActions.LabClass.y_Cor;
 import static com.example.andrey.lop.ImageActions.LabImg.xCor;
@@ -70,19 +85,33 @@ public class MainActivity extends AppCompatActivity {
     public static ArrayList<Double> DCol2 = new ArrayList<>();
     public static ArrayList<Double> DCol3 = new ArrayList<>();
 
+    public static ArrayList<Integer> a = new ArrayList<Integer>();
+    public static ArrayList<Integer> i = new ArrayList<>();
+
+    public static ArrayList<Integer> all_A_ValuesFromROI = new ArrayList<Integer>();
+    public static ArrayList<Integer> all_B_ValuesFromROI = new ArrayList<Integer>();
+    public static ArrayList<Integer> all_C_ValuesFromROI = new ArrayList<Integer>();
+
+    public static ArrayList<Integer> x_CorFromROI = new ArrayList<Integer>();
+    public static ArrayList<Integer> y_CorFromROI = new ArrayList<Integer>();
+
     public static double blueVal, greenVal, redVal;
 
+    public static int maxAfromROI, minAfromROI, rMinfromROI, rMaxfromROI, minIntensefromROI, maxIntensefromROI;
+
     ImageView iV, iV2, iV3, iV4;
-    Button bttn, bttn2, bttn3;
+    Button bttn, bttn2, bttn3, bttn4, bttn5, bttn6, bttn7, bttn8,bttn9, bttn10;
     TextView infoTw;
     static int mark = 0;
     static int mark2 = 0;
-    Mat oImage, oImage2, houghImage, helpImg, houghCirculeImage, greyImage, greyImage2, cannyImage, gaussianImage, filter2DImage_2, filter2DImage, preImg, preImg_2, anPreImg;
+    Mat oImage, oImage2, houghImage, helpImg, houghCirculeImage, greyImage, greyImage2, cannyImage, gaussianImage, filter2DImage_2, filter2DImage, preImg, preImg_2, anPreImg, labImg;
     int tX, tY;
     double Dx1, Dx2, Dy1, Dy2;
     int d;
+    Bitmap bitmapS;
     public static String path;
     public static CascadeClassifier cascadeClassifier;
+    int pon = 0;
 
     //  Mat sampledImg = new Mat();
     //  Mat rgbImg = new Mat();
@@ -103,6 +132,13 @@ public class MainActivity extends AppCompatActivity {
         bttn = findViewById(R.id.button1);
         bttn2 = findViewById(R.id.button2);
         bttn3 = findViewById(R.id.button3);
+        bttn4 = findViewById(R.id.button4);
+        bttn5 = findViewById(R.id.button5);
+        bttn6 = findViewById(R.id.button6);
+        bttn7 = findViewById(R.id.button7);
+        bttn8 = findViewById(R.id.button8);
+        bttn9 = findViewById(R.id.button9);
+        bttn10 = findViewById(R.id.button10);
         infoTw = findViewById(R.id.tW);
     }
 
@@ -201,43 +237,47 @@ public class MainActivity extends AppCompatActivity {
 
                 case 0:
 
-
-                    //   anPreImg = TwoD_image.GetTwoD_Image(oImage);
-                    ///  LabClass.calculate(oImage);
-                    // anPreImg = TwoD_image.GetTwoD_Image(oImage);
-                    ///  preImg = changeColor(oImage);
-
-                    /// preImg = TwoD_image.GetTwoD2_Image(anPreImg);
-                    /// preImg = ErodeImage.getErodeImage(anPreImg);
-                    ///  anPreImg = ErodeImage.getErodeImage(anPreImg);
-                    /// helpImg = ContourImage.getMainContourImage(preImg);
-                    //   displayImage(oImage);
-                    ///  System.out.println(oImage.cols());
-                    ///  System.out.println(oImage.rows());
+                    ///AFTER THIS NOTE IS CODE WHICH FINDS SHORTS
+                    /*
+                     *LabClass.calculate(oImage);
+                     *preImg = changeColor(preImg);
+                     *anPreImg = ErodeImage.getErodeImage(preImg);
+                     *helpImg = ContourImage.getMainContourImage(anPreImg);
+                     *displayImage(helpImg);
+                     */
 
 
-                    //   LabClass.upDownStage(oImage);
-                    // makes white background
-                    //   preImg = changeColor(oImage);
+                    //  LabClass.checkPreconditions(oImage);
 
-                    //    LabClass.leftRightStage(preImg);
+
+                    LabClass.upDownStage(oImage);
+                    preImg = changeColor(oImage);
+
+                    LabClass.leftRightStage(preImg);
+                    preImg = changeColor(preImg);
+
+                    LabClass.rightLeftStage(preImg);
+                    preImg = changeColor(preImg);
+
+                    LabClass.downUpStage(preImg);
+                    preImg = changeColor(preImg);
+
+                    displayImage(preImg);
+
+                    ///   LabClass.leftRightStage(oImage);
 
                     //    preImg = changeColor(preImg);
 
-                    LabClass.calculate(oImage);
+                    ///LabClass.calculate(oImage);
 
-                    preImg = changeColor(oImage);
+                    // LabClass.leftRightStage(preImg);
 
-                   // LabClass.leftRightStage(preImg);
-
-                   // preImg = changeColor(preImg);
+                    // preImg = changeColor(preImg);
 
 
-                     anPreImg = ErodeImage.getErodeImage(preImg);
+                    ///anPreImg = ErodeImage.getErodeImage(preImg);
 
-                     helpImg = ContourImage.getMainContourImage(anPreImg);
-
-                    displayImage(preImg);
+                    /// helpImg = ContourImage.getMainContourImage(anPreImg);
 
                     break;
                 case 1:
@@ -287,7 +327,7 @@ public class MainActivity extends AppCompatActivity {
 
             }
 */
-            mark++;
+
         }
     }
 
@@ -493,29 +533,44 @@ public class MainActivity extends AppCompatActivity {
 
     Mat matImg1, matImg2, matImg3, matImg4;
 
-    private void displayImage(Mat mat) {
+    private void displayImage(Mat mat, int num) {
 
         Bitmap bitmap = Bitmap.createBitmap(mat.cols(), mat.rows(), Bitmap.Config.RGB_565);
 
         Utils.matToBitmap(mat, bitmap);
 
-        if (mark == 0) {
+        if (num == 1) {
             iV.setImageBitmap(bitmap);
-            matImg1 = mat;
+        } else {
+            return;
         }
 
+    }
+
+    private void displayImage(Mat mat) {
+
+         bitmapS = Bitmap.createBitmap(mat.cols(), mat.rows(), Bitmap.Config.RGB_565);
+
+        Utils.matToBitmap(mat, bitmapS);
+
+        if (mark == 0) {
+            iV.setImageBitmap(bitmapS);
+            matImg1 = mat;
+        }
         if (mark == 1) {
-            iV2.setImageBitmap(bitmap);
+            iV2.setImageBitmap(bitmapS);
             matImg2 = mat;
         }
         if (mark == 2) {
-            iV3.setImageBitmap(bitmap);
+            iV3.setImageBitmap(bitmapS);
             matImg3 = mat;
+            mark = 3;
         }
         if (mark == 3) {
-            iV4.setImageBitmap(bitmap);
+            iV4.setImageBitmap(bitmapS);
             matImg4 = mat;
         }
+        mark++;
     }
 
 
@@ -582,8 +637,38 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    public void actionAny(View view, Mat countImg) {
+    public void actionAny(View view) {
 
+        if (pon == 0) {
+
+            anPreImg = ErodeImage.getErodeImage(preImg, 5, 5, 2, 2);
+            anPreImg = ErodeImage.getErodeImage(anPreImg, 5, 5, 2, 2);
+            anPreImg = ErodeImage.getErodeImage(anPreImg, 5, 5, 2, 2);
+            anPreImg = ErodeImage.getErodeImage(anPreImg, 5, 5, 2, 2);
+            helpImg = ContourImage.getMainContourImage(anPreImg);
+            pon = 1;
+            displayImage(helpImg);
+
+
+        } else if (pon == 1) {
+
+            anPreImg = ErodeImage.getErodeImage(preImg, 11, 11, 5, 5);
+            helpImg = ContourImage.getMainContourImage(anPreImg);
+            displayImage(helpImg);
+
+            pon = 2;
+
+        } else {
+
+            LabClass.downUpStage(preImg);
+
+            preImg = changeColor(preImg);
+
+            displayImage(preImg);
+
+            pon = 2;
+
+        }
 
         //  Mat kernel = new Mat();
         // Mat ones = Mat.ones(3, 3, CvType.CV_32F);
@@ -591,7 +676,7 @@ public class MainActivity extends AppCompatActivity {
 
         // int rows1 = mImage.rows();
         // int clmns1 = mImage.cols();
-
+/*
 
         for (int i = 0; i < 5; i++) {
 
@@ -639,7 +724,7 @@ public class MainActivity extends AppCompatActivity {
         // infoTw.setText(rows + " " + clmns + " " + chn + " " + "b = " + b + " g = " + g +  " r = " + r );
         // infoTw.setText(rows + " " + clmns + " " + chn + " " + "b = " + b );
 
-
+*/
     }
 
     //
@@ -685,6 +770,238 @@ public class MainActivity extends AppCompatActivity {
 
         displayImage(helpImg);
 
+    }
+
+    public void getRoiXy(View view) {
+        DrawRect.getCoord();
+    }
+
+    public void getFullRoiXy(View view) {
+
+        ArrayList<Integer> full_x_ROIcoord = new ArrayList<>();
+        ArrayList<Integer> full_y_ROIcoord = new ArrayList<>();
+
+        if (xRed < 0 || xRed > 750 || yRed < 0 || yRed > 1000 ||
+                xOrg < 0 || xOrg > 750 || yOrg < 0 || yOrg > 1000 ||
+                xYell < 0 || xYell > 750 || yYell < 0 || yYell > 1000 ||
+                xGreen < 0 || xGreen > 750 || yGreen < 0 || yGreen > 1000) {
+            return;
+        } else {
+            for (int x = xRed; x <= xYell; x++) {
+                for (int y = yRed; y <= yYell; y++) {
+                    full_x_ROIcoord.add(x);
+                    full_y_ROIcoord.add(y);
+                }
+            }
+        }
+        System.out.println("x_full " + full_x_ROIcoord.size());
+        System.out.println("y_full " + full_y_ROIcoord.size());
+
+    }
+
+    public void changeColorRoiInner(View view){
+
+        DrawRect.getCoord();
+
+        Imgproc.cvtColor(preImg, preImg, Imgproc.COLOR_BGR2Lab);
+
+        // codeBlock change color upDown
+        for (int x = xRed; x < (xYell + 1); x++) {
+            for (int y = yRed; y < (yYell + 1); y++) {
+                double[] joy = preImg.get(y, x);
+                int cVal = (int) joy[0];
+                int aVal = (int) joy[1];
+                int bVal = (int) joy[2];
+                if (all_A_Values.contains(aVal) && all_B_Values.contains(bVal) && all_C_Values.contains(cVal)) {
+                    x_Cor.add(x);
+                    y_Cor.add(y);
+                }
+            }
+        }
+
+        Imgproc.cvtColor(preImg, preImg, Imgproc.COLOR_Lab2BGR);
+        changeColor(preImg);
+        displayImage(preImg, 1);
+
+    }
+
+    public void getColorRoi(View view){
+
+        DrawRect.getCoord();
+
+        Mat labImg2 = new Mat();
+
+        Imgproc.cvtColor(preImg, labImg2, Imgproc.COLOR_BGR2Lab);
+
+        for (int x = xRed; x < (xYell + 1); x++) {
+
+            for (int y = yRed; y < (yYell + 1); y++) {
+
+                double[] joy = labImg2.get(y, x);
+                int vIntense = (int) joy[0];
+                int vSat = (int) joy[1];
+                int vValue = (int) joy[2];
+
+
+                a.add(vSat);
+                a.add(vValue);
+                i.add(vIntense);
+            }
+        }
+        System.out.println("Size of A array" + a.size());
+        System.out.println("Size of I array" + i.size());
+    }
+
+    public void jackStay(View view){
+
+        maxAfromROI = a.get(0);
+        minAfromROI = a.get(0);
+
+        for (int y : a) {
+            if (y >= maxAfromROI) {
+                maxAfromROI = y;
+            }
+            if (y <= minAfromROI) {
+                minAfromROI = y;
+            }
+        }
+
+        maxIntensefromROI = i.get(0);
+        minIntensefromROI = i.get(0);
+
+        for (int y : i) {
+            if (y >= maxIntensefromROI) {
+                maxIntensefromROI = y;
+            }
+            if (y <= minIntensefromROI) {
+                minIntensefromROI = y;
+            }
+        }
+        System.out.println("MinAfromROI");
+        System.out.println(minAfromROI);
+        System.out.println("MaxAfromROI");
+        System.out.println(maxAfromROI);
+        System.out.println("MaxIntensefromROI");
+        System.out.println(maxIntensefromROI);
+        System.out.println("MinIntensefromROI");
+        System.out.println(minIntensefromROI);
+
+        for (int i = minAfromROI; i <= maxAfromROI; i++) {
+            all_A_ValuesFromROI.add(i);
+            all_B_ValuesFromROI.add(i);
+        }
+
+        for (int i = minIntensefromROI; i <= maxIntensefromROI; i++) {
+            all_C_ValuesFromROI.add(i);
+        }
+
+        Imgproc.cvtColor(preImg, preImg, Imgproc.COLOR_BGR2Lab);
+
+        for (int x = 0; x < preImg.cols(); x++) {
+            for (int y = 0; y < preImg.rows(); y++) {
+                double[] joy = preImg.get(y, x);
+                int cVal = (int) joy[0];
+                int aVal = (int) joy[1];
+                int bVal = (int) joy[2];
+                if (all_A_ValuesFromROI.contains(aVal) && all_B_ValuesFromROI.contains(bVal) && all_C_ValuesFromROI.contains(cVal)) {
+                    x_CorFromROI.add(x);
+                    y_CorFromROI.add(y);
+                }
+            }
+        }
+        Imgproc.cvtColor(preImg, preImg, Imgproc.COLOR_Lab2BGR);
+
+        // change color
+        for (int i = 0; i < x_CorFromROI.size(); i++) {
+            double[] g = {255.0, 255.0, 255.0};
+            preImg.put(y_CorFromROI.get(i), x_CorFromROI.get(i), g);
+        }
+
+        x_CorFromROI.clear();
+        y_CorFromROI.clear();
+
+        displayImage(preImg, 1);
+    }
+
+    // use button
+    public void changeColorRoiBgrnd(View view) {
+
+        DrawRect.getCoord();
+
+        Imgproc.cvtColor(oImage, oImage, Imgproc.COLOR_BGR2Lab);
+
+        // codeBlock change color upDown
+        for (int x = xRed; x < (xYell + 1); x++) {
+            for (int y = yRed; y < (yYell + 1); y++) {
+                double[] joy = oImage.get(y, x);
+                int cVal = (int) joy[0];
+                int aVal = (int) joy[1];
+                int bVal = (int) joy[2];
+                if (all_A_Values.contains(aVal) && all_B_Values.contains(bVal) && all_C_Values.contains(cVal)) {
+                    x_Cor.add(x);
+                    y_Cor.add(y);
+                } else {
+                    break;
+                }
+            }
+        }
+        Imgproc.cvtColor(oImage, oImage, Imgproc.COLOR_Lab2BGR);
+        System.out.println("upDownStage completed");
+        System.out.println("x_Cor size: " + x_Cor.size());
+
+        changeColor(oImage);
+        Imgproc.cvtColor(oImage, oImage, Imgproc.COLOR_BGR2Lab);
+        // codeBlock change color leftRight
+        int sMark_2 = 0;
+        for (int y = yRed; y < (yYell + 1); y++) {
+            for (int x = xRed; x < (xYell + 1); x--) {
+                double[] joy = oImage.get(y, x);
+                int cVal = (int) joy[0];
+                int aVal = (int) joy[1];
+                int bVal = (int) joy[2];
+                if (all_A_Values.contains(aVal) && all_B_Values.contains(bVal) && all_C_Values.contains(cVal)) {
+                    x_Cor.add(x);
+                    y_Cor.add(y);
+                } else if (aVal == 128 && bVal == 128 && cVal == 255) {
+                    sMark_2 = 1;
+                } else {
+                    break;
+                }
+            }
+        }
+
+        Imgproc.cvtColor(oImage, oImage, Imgproc.COLOR_Lab2BGR);
+        System.out.println("upDownStage completed");
+        System.out.println("x_Cor size: " + x_Cor.size());
+        changeColor(oImage);
+        displayImage(oImage, 1);
+
+    }
+
+    public void saveImg(View view){
+        // START creating directory for images
+        String root = Environment.getExternalStorageDirectory().toString();
+        File myDir = new File(root + "/App_images");
+        if(!myDir.exists()) {
+            myDir.mkdir();
+        }
+        // STOP creating directory for images
+        Random generator = new Random();
+        int n = 10000;
+        n = generator.nextInt(n);
+        String fname = "Image-"+ n +".jpg";
+        File file = new File (myDir, fname);
+        String imgPath = file.toString();
+        if (file.exists ()) file.delete ();
+        try {
+            FileOutputStream out = new FileOutputStream(file);
+            bitmapS.compress(Bitmap.CompressFormat.JPEG, 100, out);
+            out.flush();
+            out.close();
+            Toast.makeText(getApplicationContext(),imgPath + " is saved",Toast.LENGTH_SHORT).show();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public void getColorData() {
