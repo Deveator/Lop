@@ -161,8 +161,8 @@ public class MainActivity extends AppCompatActivity {
 
             // loadImage(path);
 
-            oImage = OriginalImage.GetOriginalImage(path, 4, 4);
-            oImage2 = OriginalImage.GetOriginalImage(path, 4, 4);
+            oImage = OriginalImage.GetResizedImage(path);
+           // oImage2 = OriginalImage.GetOriginalImage(path, 4, 4);
 
             //Imgproc.cvtColor(oImage,oImage,Imgproc.COLOR_BGR2Lab);
             //Imgproc.cvtColor(oImage, oImage, Imgproc.COLOR_BGR2HSV);
@@ -995,6 +995,7 @@ public class MainActivity extends AppCompatActivity {
         if (file.exists ()) file.delete ();
         try {
             FileOutputStream out = new FileOutputStream(file);
+            System.out.println(155);
             bitmapS.compress(Bitmap.CompressFormat.JPEG, 100, out);
             out.flush();
             out.close();
