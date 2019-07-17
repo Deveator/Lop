@@ -88,6 +88,11 @@ public class MainActivity extends AppCompatActivity {
     public static ArrayList<Integer> a = new ArrayList<Integer>();
     public static ArrayList<Integer> i = new ArrayList<>();
 
+
+    public static ArrayList<Integer> hueVal = new ArrayList<Integer>();
+    public static ArrayList<Integer> satVal = new ArrayList<>();
+    public static ArrayList<Integer> valVal = new ArrayList<>();
+
     public static ArrayList<Integer> all_A_ValuesFromROI = new ArrayList<Integer>();
     public static ArrayList<Integer> all_B_ValuesFromROI = new ArrayList<Integer>();
     public static ArrayList<Integer> all_C_ValuesFromROI = new ArrayList<Integer>();
@@ -100,7 +105,7 @@ public class MainActivity extends AppCompatActivity {
     public static int maxAfromROI, minAfromROI, rMinfromROI, rMaxfromROI, minIntensefromROI, maxIntensefromROI;
 
     ImageView iV, iV2, iV3, iV4;
-    Button bttn, bttn2, bttn3, bttn4, bttn5, bttn6, bttn7, bttn8,bttn9, bttn10;
+    Button bttn, bttn2, bttn3, bttn4, bttn5, bttn6, bttn7, bttn8, bttn9, bttn10;
     TextView infoTw;
     static int mark = 0;
     static int mark2 = 0;
@@ -162,7 +167,7 @@ public class MainActivity extends AppCompatActivity {
             // loadImage(path);
 
             oImage = OriginalImage.GetResizedImage(path);
-           // oImage2 = OriginalImage.GetOriginalImage(path, 4, 4);
+            // oImage2 = OriginalImage.GetOriginalImage(path, 4, 4);
 
             //Imgproc.cvtColor(oImage,oImage,Imgproc.COLOR_BGR2Lab);
             //Imgproc.cvtColor(oImage, oImage, Imgproc.COLOR_BGR2HSV);
@@ -549,7 +554,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void displayImage(Mat mat) {
 
-         bitmapS = Bitmap.createBitmap(mat.cols(), mat.rows(), Bitmap.Config.RGB_565);
+        bitmapS = Bitmap.createBitmap(mat.cols(), mat.rows(), Bitmap.Config.RGB_565);
 
         Utils.matToBitmap(mat, bitmapS);
 
@@ -799,7 +804,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void changeColorRoiInner(View view){
+    public void changeColorRoiInner(View view) {
 
         DrawRect.getCoord();
 
@@ -825,34 +830,66 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void getColorRoi(View view){
+    // try to change image in HSV format
+    public void getColorRoi(View view) {
 
         DrawRect.getCoord();
+        ///Imgproc.cvtColor(preImg, labImg2, Imgproc.COLOR_BGR2Lab);
 
-        Mat labImg2 = new Mat();
+        ///  Mat labImg2 = new Mat();
+        Mat hsvMat = new Mat();
+        Imgproc.cvtColor(preImg, hsvMat, Imgproc.COLOR_BGR2HSV);
 
-        Imgproc.cvtColor(preImg, labImg2, Imgproc.COLOR_BGR2Lab);
 
         for (int x = xRed; x < (xYell + 1); x++) {
 
             for (int y = yRed; y < (yYell + 1); y++) {
 
-                double[] joy = labImg2.get(y, x);
-                int vIntense = (int) joy[0];
+                double[] joy = hsvMat.get(y, x);
+                int vHue = (int) joy[0];
                 int vSat = (int) joy[1];
                 int vValue = (int) joy[2];
 
 
-                a.add(vSat);
-                a.add(vValue);
-                i.add(vIntense);
+                satVal.add(vSat);
+                valVal.add(vValue);
+                hueVal.add(vHue);
+
             }
         }
-        System.out.println("Size of A array" + a.size());
-        System.out.println("Size of I array" + i.size());
+        System.out.println("Size of satVal array " + satVal.size());
+        System.out.println("Size of valVal array " + valVal.size());
+        System.out.println("Size of hueVal array " + hueVal.size());
+        System.out.println("Max of satVal array " + getMaxFromArray(satVal));
+        System.out.println("Min of satVal array " + getMinFromArray(satVal));
+        System.out.println("Max of valVal array " + getMaxFromArray(valVal));
+        System.out.println("Min of valVal array " + getMinFromArray(valVal));
+        System.out.println("Max of hueVal array " + getMaxFromArray(hueVal));
+        System.out.println("Min of hueVal array " + getMinFromArray(hueVal));
     }
 
-    public void jackStay(View view){
+
+    public int getMaxFromArray(ArrayList<Integer> aL) {
+        int y = 0;
+        for (int x : aL) {
+            if (x > y) {
+                y = x;
+            }
+        }
+        return y;
+    }
+
+    public int getMinFromArray(ArrayList<Integer> aL) {
+        int y = 256;
+        for (int x : aL) {
+            if (x < y) {
+                y = x;
+            }
+        }
+        return y;
+    }
+
+    public void jackStay(View view) {
 
         maxAfromROI = a.get(0);
         minAfromROI = a.get(0);
@@ -978,28 +1015,28 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void saveImg(View view){
+    public void saveImg(View view) {
         // START creating directory for images
         String root = Environment.getExternalStorageDirectory().toString();
         File myDir = new File(root + "/App_images");
-        if(!myDir.exists()) {
+        if (!myDir.exists()) {
             myDir.mkdir();
         }
         // STOP creating directory for images
         Random generator = new Random();
         int n = 10000;
         n = generator.nextInt(n);
-        String fname = "Image-"+ n +".jpg";
-        File file = new File (myDir, fname);
+        String fname = "Image-" + n + ".jpg";
+        File file = new File(myDir, fname);
         String imgPath = file.toString();
-        if (file.exists ()) file.delete ();
+        if (file.exists()) file.delete();
         try {
             FileOutputStream out = new FileOutputStream(file);
             System.out.println(155);
             bitmapS.compress(Bitmap.CompressFormat.JPEG, 100, out);
             out.flush();
             out.close();
-            Toast.makeText(getApplicationContext(),imgPath + " is saved",Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), imgPath + " is saved", Toast.LENGTH_SHORT).show();
         } catch (Exception e) {
             e.printStackTrace();
         }
