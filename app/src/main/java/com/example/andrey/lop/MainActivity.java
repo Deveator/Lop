@@ -68,6 +68,14 @@ import static com.example.andrey.lop.ImageActions.FindContourImage.yCorC;
 import static com.example.andrey.lop.ImageActions.LabClass.all_A_Values;
 import static com.example.andrey.lop.ImageActions.LabClass.all_B_Values;
 import static com.example.andrey.lop.ImageActions.LabClass.all_C_Values;
+import static com.example.andrey.lop.ImageActions.LabClass.downUpStageROI;
+import static com.example.andrey.lop.ImageActions.LabClass.leftRightStageROI;
+import static com.example.andrey.lop.ImageActions.LabClass.maxIntense;
+import static com.example.andrey.lop.ImageActions.LabClass.minIntense;
+import static com.example.andrey.lop.ImageActions.LabClass.rMax;
+import static com.example.andrey.lop.ImageActions.LabClass.rMin;
+import static com.example.andrey.lop.ImageActions.LabClass.rightLeftStageROI;
+import static com.example.andrey.lop.ImageActions.LabClass.upDownStageROI;
 import static com.example.andrey.lop.ImageActions.LabClass.x_Cor;
 import static com.example.andrey.lop.ImageActions.LabClass.y_Cor;
 import static com.example.andrey.lop.ImageActions.LabImg.xCor;
@@ -100,13 +108,16 @@ public class MainActivity extends AppCompatActivity {
     public static ArrayList<Integer> x_CorFromROI = new ArrayList<Integer>();
     public static ArrayList<Integer> y_CorFromROI = new ArrayList<Integer>();
 
+    public static ArrayList<Integer> full_x_ROIcoord = new ArrayList<>();
+    public static ArrayList<Integer> full_y_ROIcoord = new ArrayList<>();
+
     public static double blueVal, greenVal, redVal;
 
     public static int maxAfromROI, minAfromROI, rMinfromROI, rMaxfromROI, minIntensefromROI, maxIntensefromROI;
 
     ImageView iV, iV2, iV3, iV4;
-    Button bttn, bttn2, bttn3, bttn4, bttn5, bttn6, bttn7, bttn8, bttn9, bttn10;
-    TextView infoTw;
+    Button bttn, bttn2, bttn3, bttn4, bttn5, bttn6, bttn7, bttn8, bttn9, bttn10, bttn11, bttn12, bttn13, bttn14;
+    TextView infoTw1, infoTw2, infoTw3, infoTw4, infoTw5, infoTw6, infoTw7, infoTw8;
     static int mark = 0;
     static int mark2 = 0;
     Mat oImage, oImage2, houghImage, helpImg, houghCirculeImage, greyImage, greyImage2, cannyImage, gaussianImage, filter2DImage_2, filter2DImage, preImg, preImg_2, anPreImg, labImg;
@@ -131,9 +142,6 @@ public class MainActivity extends AppCompatActivity {
         OpenCVLoader.initDebug();
 
         iV = findViewById(R.id.imageV);
-        iV2 = findViewById(R.id.imageV2);
-        iV3 = findViewById(R.id.imageV3);
-        iV4 = findViewById(R.id.imageV4);
         bttn = findViewById(R.id.button1);
         bttn2 = findViewById(R.id.button2);
         bttn3 = findViewById(R.id.button3);
@@ -144,7 +152,18 @@ public class MainActivity extends AppCompatActivity {
         bttn8 = findViewById(R.id.button8);
         bttn9 = findViewById(R.id.button9);
         bttn10 = findViewById(R.id.button10);
-        infoTw = findViewById(R.id.tW);
+        bttn11 = findViewById(R.id.button11);
+        bttn12 = findViewById(R.id.button12);
+        bttn13 = findViewById(R.id.button13);
+        bttn14 = findViewById(R.id.button14);
+        infoTw1 = findViewById(R.id.tW1);
+        infoTw2 = findViewById(R.id.tW2);
+        infoTw3 = findViewById(R.id.tW3);
+        infoTw4 = findViewById(R.id.tW4);
+        infoTw5 = findViewById(R.id.tW5);
+        infoTw6 = findViewById(R.id.tW6);
+        infoTw7 = findViewById(R.id.tW7);
+        infoTw8 = findViewById(R.id.tW8);
     }
 
     public void openGallery(View v) {
@@ -251,10 +270,8 @@ public class MainActivity extends AppCompatActivity {
                      *displayImage(helpImg);
                      */
 
-
-                    //  LabClass.checkPreconditions(oImage);
-
-
+                    /*
+                    // block to erase background
                     LabClass.upDownStage(oImage);
                     preImg = changeColor(oImage);
 
@@ -266,8 +283,19 @@ public class MainActivity extends AppCompatActivity {
 
                     LabClass.downUpStage(preImg);
                     preImg = changeColor(preImg);
+                    // end block
 
-                    displayImage(preImg);
+                    */
+
+                    // get value of background color
+                    LabClass.checkPreconditions(oImage);
+
+                    infoTw2.append(Integer.toString(rMin));
+                    infoTw4.append(Integer.toString(rMax));
+                    infoTw6.append(Integer.toString(minIntense));
+                    infoTw8.append(Integer.toString(maxIntense));
+
+                    displayImage(oImage);
 
                     ///   LabClass.leftRightStage(oImage);
 
@@ -275,7 +303,7 @@ public class MainActivity extends AppCompatActivity {
 
                     ///LabClass.calculate(oImage);
 
-                    // LabClass.leftRightStage(preImg);
+                    //LabClass.leftRightStage(preImg);
 
                     // preImg = changeColor(preImg);
 
@@ -342,6 +370,21 @@ public class MainActivity extends AppCompatActivity {
         for (int i = 0; i < x_Cor.size(); i++) {
             double[] g = {255.0, 255.0, 255.0};
             inputImg.put(y_Cor.get(i), x_Cor.get(i), g);
+        }
+
+        x_Cor.clear();
+        y_Cor.clear();
+        System.out.println("x_Cor size after clean: " + x_Cor.size());
+        return inputImg;
+
+    }
+
+    public static Mat changeColorFromROI(Mat inputImg) {
+
+
+        for (int i = 0; i < x_Cor.size(); i++) {
+            double[] g = {255.0, 255.0, 255.0};
+            inputImg.put(y_Cor.get(i)+ yRed, x_Cor.get(i)+xRed , g);
         }
 
         x_Cor.clear();
@@ -575,7 +618,7 @@ public class MainActivity extends AppCompatActivity {
             iV4.setImageBitmap(bitmapS);
             matImg4 = mat;
         }
-        mark++;
+        // mark++;
     }
 
 
@@ -612,7 +655,7 @@ public class MainActivity extends AppCompatActivity {
         }
         return uri.getPath();
     }
-
+/*
     // method to get pixel value
     public void didIt(Mat mImage, int aRow, int aCol) {
         //  mImage.convertTo(mImage, CvType.CV_8UC1);
@@ -640,7 +683,7 @@ public class MainActivity extends AppCompatActivity {
         infoTw.append("\n");
         infoTw.append("\n");
     }
-
+*/
 
     public void actionAny(View view) {
 
@@ -783,6 +826,8 @@ public class MainActivity extends AppCompatActivity {
 
     public void getFullRoiXy(View view) {
 
+        mFullRoiXy();
+       /*
         ArrayList<Integer> full_x_ROIcoord = new ArrayList<>();
         ArrayList<Integer> full_y_ROIcoord = new ArrayList<>();
 
@@ -801,8 +846,31 @@ public class MainActivity extends AppCompatActivity {
         }
         System.out.println("x_full " + full_x_ROIcoord.size());
         System.out.println("y_full " + full_y_ROIcoord.size());
-
+        */
     }
+
+    public void mFullRoiXy() {
+
+      //  ArrayList<Integer> full_x_ROIcoord = new ArrayList<>();
+     //   ArrayList<Integer> full_y_ROIcoord = new ArrayList<>();
+
+        if (xRed < 0 || xRed > 750 || yRed < 0 || yRed > 1000 ||
+                xOrg < 0 || xOrg > 750 || yOrg < 0 || yOrg > 1000 ||
+                xYell < 0 || xYell > 750 || yYell < 0 || yYell > 1000 ||
+                xGreen < 0 || xGreen > 750 || yGreen < 0 || yGreen > 1000) {
+            return;
+        } else {
+            for (int x = xRed; x <= xYell; x++) {
+                for (int y = yRed; y <= yYell; y++) {
+                    full_x_ROIcoord.add(x);
+                    full_y_ROIcoord.add(y);
+                }
+            }
+        }
+        System.out.println("x_full " + full_x_ROIcoord.size());
+        System.out.println("y_full " + full_y_ROIcoord.size());
+    }
+
 
     public void changeColorRoiInner(View view) {
 
@@ -867,7 +935,6 @@ public class MainActivity extends AppCompatActivity {
         System.out.println("Max of hueVal array " + getMaxFromArray(hueVal));
         System.out.println("Min of hueVal array " + getMinFromArray(hueVal));
     }
-
 
     public int getMaxFromArray(ArrayList<Integer> aL) {
         int y = 0;
@@ -1124,6 +1191,118 @@ public class MainActivity extends AppCompatActivity {
         Imgproc.line(img, start4, end4, new Scalar(0, 0, 0), 2);
         return img;
 
+    }
+
+    public void plusA(View view) {
+        int min = Integer.valueOf(String.valueOf(infoTw2.getText()));
+        int max = Integer.valueOf(String.valueOf(infoTw4.getText()));
+        min--;
+        max++;
+        infoTw2.setText(String.valueOf(min));
+        infoTw4.setText(String.valueOf(max));
+    }
+
+    public void minusA(View view) {
+        int min = Integer.valueOf(String.valueOf(infoTw2.getText()));
+        int max = Integer.valueOf(String.valueOf(infoTw4.getText()));
+        min++;
+        max--;
+        infoTw2.setText(String.valueOf(min));
+        infoTw4.setText(String.valueOf(max));
+    }
+
+    public void plusIntense(View view) {
+        int min = Integer.valueOf(String.valueOf(infoTw6.getText()));
+        int max = Integer.valueOf(String.valueOf(infoTw8.getText()));
+        min--;
+        max++;
+        infoTw6.setText(String.valueOf(min));
+        infoTw8.setText(String.valueOf(max));
+    }
+
+    public void minusIntense(View view) {
+        int min = Integer.valueOf(String.valueOf(infoTw6.getText()));
+        int max = Integer.valueOf(String.valueOf(infoTw8.getText()));
+        min++;
+        max--;
+        infoTw6.setText(String.valueOf(min));
+        infoTw8.setText(String.valueOf(max));
+    }
+
+    public void upDownChange(View view) {
+
+        DrawRect.getCoord();
+
+        mFullRoiXy();
+
+        Mat sMat = oImage.submat(yRed, yGreen, xRed, xOrg);
+
+        upDownStageROI(sMat);
+
+        changeColorFromROI(oImage);
+
+        displayImage(oImage);
+
+        // need to clear
+        full_x_ROIcoord.clear();
+        full_y_ROIcoord.clear();
+    }
+
+    public void downUpChange(View view) {
+
+        DrawRect.getCoord();
+
+        mFullRoiXy();
+
+        Mat sMat = oImage.submat(yRed, yGreen, xRed, xOrg);
+
+        downUpStageROI(sMat);
+
+        changeColorFromROI(oImage);
+
+        displayImage(oImage);
+
+        // need to clear
+        full_x_ROIcoord.clear();
+        full_y_ROIcoord.clear();
+    }
+
+    public void rightLeftChange(View view) {
+
+        DrawRect.getCoord();
+
+        mFullRoiXy();
+
+        Mat sMat = oImage.submat(yRed, yGreen, xRed, xOrg);
+
+        rightLeftStageROI(sMat);
+
+        changeColorFromROI(oImage);
+
+        displayImage(oImage);
+
+        // need to clear
+        full_x_ROIcoord.clear();
+        full_y_ROIcoord.clear();
+    }
+
+    public void leftRightChange(View view) {
+
+        DrawRect.getCoord();
+
+        mFullRoiXy();
+
+        Mat sMat = oImage.submat(yRed, yGreen, xRed, xOrg);
+
+        leftRightStageROI(sMat);
+
+        changeColorFromROI(oImage);
+
+        displayImage(oImage);
+
+        // need to clear
+        full_x_ROIcoord.clear();
+        full_y_ROIcoord.clear();
     }
 
     /*
