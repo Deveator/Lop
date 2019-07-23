@@ -54,6 +54,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import static com.example.andrey.lop.ChangeValues.mDownUpChangeROI;
+import static com.example.andrey.lop.ChangeValues.mLeftRightChangeROI;
+import static com.example.andrey.lop.ChangeValues.mRightLeftChangeROI;
+import static com.example.andrey.lop.ChangeValues.mUpDownChangeROI;
 import static com.example.andrey.lop.CustomView.DrawRect.xGreen;
 import static com.example.andrey.lop.CustomView.DrawRect.xOrg;
 import static com.example.andrey.lop.CustomView.DrawRect.xRed;
@@ -68,6 +72,7 @@ import static com.example.andrey.lop.ImageActions.FindContourImage.yCorC;
 import static com.example.andrey.lop.ImageActions.LabClass.all_A_Values;
 import static com.example.andrey.lop.ImageActions.LabClass.all_B_Values;
 import static com.example.andrey.lop.ImageActions.LabClass.all_C_Values;
+import static com.example.andrey.lop.ImageActions.LabClass.checkPreconditions;
 import static com.example.andrey.lop.ImageActions.LabClass.downUpStageROI;
 import static com.example.andrey.lop.ImageActions.LabClass.leftRightStageROI;
 import static com.example.andrey.lop.ImageActions.LabClass.maxIntense;
@@ -113,7 +118,7 @@ public class MainActivity extends AppCompatActivity {
 
     public static double blueVal, greenVal, redVal;
 
-    public static int maxAfromROI, minAfromROI, rMinfromROI, rMaxfromROI, minIntensefromROI, maxIntensefromROI;
+    public static int maxAfromROI, minAfromROI, rMinfromROI, rMaxfromROI, minIntensefromROI, maxIntensefromROI, min_A, max_A, min_Intense, max_Intense;
 
     ImageView iV, iV2, iV3, iV4;
     Button bttn, bttn2, bttn3, bttn4, bttn5, bttn6, bttn7, bttn8, bttn9, bttn10, bttn11, bttn12, bttn13, bttn14;
@@ -288,12 +293,13 @@ public class MainActivity extends AppCompatActivity {
                     */
 
                     // get value of background color
-                    LabClass.checkPreconditions(oImage);
+                    checkPreconditions(oImage);
 
                     infoTw2.append(Integer.toString(rMin));
                     infoTw4.append(Integer.toString(rMax));
                     infoTw6.append(Integer.toString(minIntense));
                     infoTw8.append(Integer.toString(maxIntense));
+                    setActualValues();
 
                     displayImage(oImage);
 
@@ -340,38 +346,17 @@ public class MainActivity extends AppCompatActivity {
                     break;
 
             }
-
-
             // displayImage(AffineImage.getAffinedImage(oImage));
-/*
-            if(mark!=1){
-
-                getGreyImage(orImage);
-
-                displayImage(greyImage);
-
-            }else{
-
-                getGreyImage(orImage);
-
-                get2DfilterImage(greyImage);
-
-                displayImage(filter2DImage);
-
-            }
-*/
 
         }
     }
 
     public static Mat changeColor(Mat inputImg) {
 
-
         for (int i = 0; i < x_Cor.size(); i++) {
             double[] g = {255.0, 255.0, 255.0};
             inputImg.put(y_Cor.get(i), x_Cor.get(i), g);
         }
-
         x_Cor.clear();
         y_Cor.clear();
         System.out.println("x_Cor size after clean: " + x_Cor.size());
@@ -384,7 +369,7 @@ public class MainActivity extends AppCompatActivity {
 
         for (int i = 0; i < x_Cor.size(); i++) {
             double[] g = {255.0, 255.0, 255.0};
-            inputImg.put(y_Cor.get(i)+ yRed, x_Cor.get(i)+xRed , g);
+            inputImg.put(y_Cor.get(i) + yRed, x_Cor.get(i) + xRed, g);
         }
 
         x_Cor.clear();
@@ -827,32 +812,9 @@ public class MainActivity extends AppCompatActivity {
     public void getFullRoiXy(View view) {
 
         mFullRoiXy();
-       /*
-        ArrayList<Integer> full_x_ROIcoord = new ArrayList<>();
-        ArrayList<Integer> full_y_ROIcoord = new ArrayList<>();
-
-        if (xRed < 0 || xRed > 750 || yRed < 0 || yRed > 1000 ||
-                xOrg < 0 || xOrg > 750 || yOrg < 0 || yOrg > 1000 ||
-                xYell < 0 || xYell > 750 || yYell < 0 || yYell > 1000 ||
-                xGreen < 0 || xGreen > 750 || yGreen < 0 || yGreen > 1000) {
-            return;
-        } else {
-            for (int x = xRed; x <= xYell; x++) {
-                for (int y = yRed; y <= yYell; y++) {
-                    full_x_ROIcoord.add(x);
-                    full_y_ROIcoord.add(y);
-                }
-            }
-        }
-        System.out.println("x_full " + full_x_ROIcoord.size());
-        System.out.println("y_full " + full_y_ROIcoord.size());
-        */
     }
 
-    public void mFullRoiXy() {
-
-      //  ArrayList<Integer> full_x_ROIcoord = new ArrayList<>();
-     //   ArrayList<Integer> full_y_ROIcoord = new ArrayList<>();
+    public static void mFullRoiXy() {
 
         if (xRed < 0 || xRed > 750 || yRed < 0 || yRed > 1000 ||
                 xOrg < 0 || xOrg > 750 || yOrg < 0 || yOrg > 1000 ||
@@ -1193,116 +1155,87 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void plusA(View view) {
+    public void plusMin_A(View view) {
         int min = Integer.valueOf(String.valueOf(infoTw2.getText()));
-        int max = Integer.valueOf(String.valueOf(infoTw4.getText()));
-        min--;
-        max++;
+        min++;
         infoTw2.setText(String.valueOf(min));
-        infoTw4.setText(String.valueOf(max));
+        setActualValues();
     }
 
-    public void minusA(View view) {
+    public void minusMin_A(View view) {
         int min = Integer.valueOf(String.valueOf(infoTw2.getText()));
-        int max = Integer.valueOf(String.valueOf(infoTw4.getText()));
-        min++;
-        max--;
-        infoTw2.setText(String.valueOf(min));
-        infoTw4.setText(String.valueOf(max));
-    }
-
-    public void plusIntense(View view) {
-        int min = Integer.valueOf(String.valueOf(infoTw6.getText()));
-        int max = Integer.valueOf(String.valueOf(infoTw8.getText()));
         min--;
-        max++;
-        infoTw6.setText(String.valueOf(min));
-        infoTw8.setText(String.valueOf(max));
+        infoTw2.setText(String.valueOf(min));
+        setActualValues();
     }
 
-    public void minusIntense(View view) {
-        int min = Integer.valueOf(String.valueOf(infoTw6.getText()));
-        int max = Integer.valueOf(String.valueOf(infoTw8.getText()));
-        min++;
+    public void plusMax_A(View view) {
+        int max = Integer.valueOf(String.valueOf(infoTw4.getText()));
+        max++;
+        infoTw4.setText(String.valueOf(max));
+        setActualValues();
+    }
+
+    public void minusMax_A(View view) {
+        int max = Integer.valueOf(String.valueOf(infoTw4.getText()));
         max--;
+        infoTw4.setText(String.valueOf(max));
+        setActualValues();
+    }
+
+    public void plusMinIntense(View view) {
+        int min = Integer.valueOf(String.valueOf(infoTw6.getText()));
+        min++;
         infoTw6.setText(String.valueOf(min));
+        setActualValues();
+    }
+
+    public void minusMinIntense(View view) {
+        int min = Integer.valueOf(String.valueOf(infoTw6.getText()));
+        min--;
+        infoTw6.setText(String.valueOf(min));
+        setActualValues();
+    }
+
+    public void plusMaxIntense(View view) {
+        int max = Integer.valueOf(String.valueOf(infoTw8.getText()));
+        max++;
         infoTw8.setText(String.valueOf(max));
+        setActualValues();
+    }
+
+    public void minusMaxIntense(View view) {
+        int max = Integer.valueOf(String.valueOf(infoTw8.getText()));
+        max--;
+        infoTw8.setText(String.valueOf(max));
+        setActualValues();
+    }
+
+    public void setActualValues() {
+        min_A = Integer.valueOf(String.valueOf(infoTw2.getText()));
+        max_A = Integer.valueOf(String.valueOf(infoTw4.getText()));
+        min_Intense = Integer.valueOf(String.valueOf(infoTw6.getText()));
+        max_Intense = Integer.valueOf(String.valueOf(infoTw8.getText()));
     }
 
     public void upDownChange(View view) {
 
-        DrawRect.getCoord();
-
-        mFullRoiXy();
-
-        Mat sMat = oImage.submat(yRed, yGreen, xRed, xOrg);
-
-        upDownStageROI(sMat);
-
-        changeColorFromROI(oImage);
-
-        displayImage(oImage);
-
-        // need to clear
-        full_x_ROIcoord.clear();
-        full_y_ROIcoord.clear();
+        displayImage(mUpDownChangeROI(oImage, min_A, max_A, min_Intense, max_Intense));
     }
 
     public void downUpChange(View view) {
 
-        DrawRect.getCoord();
-
-        mFullRoiXy();
-
-        Mat sMat = oImage.submat(yRed, yGreen, xRed, xOrg);
-
-        downUpStageROI(sMat);
-
-        changeColorFromROI(oImage);
-
-        displayImage(oImage);
-
-        // need to clear
-        full_x_ROIcoord.clear();
-        full_y_ROIcoord.clear();
+        displayImage(mDownUpChangeROI(oImage, min_A, max_A, min_Intense, max_Intense));
     }
 
     public void rightLeftChange(View view) {
 
-        DrawRect.getCoord();
-
-        mFullRoiXy();
-
-        Mat sMat = oImage.submat(yRed, yGreen, xRed, xOrg);
-
-        rightLeftStageROI(sMat);
-
-        changeColorFromROI(oImage);
-
-        displayImage(oImage);
-
-        // need to clear
-        full_x_ROIcoord.clear();
-        full_y_ROIcoord.clear();
+        displayImage(mRightLeftChangeROI(oImage, min_A, max_A, min_Intense, max_Intense));
     }
 
     public void leftRightChange(View view) {
 
-        DrawRect.getCoord();
-
-        mFullRoiXy();
-
-        Mat sMat = oImage.submat(yRed, yGreen, xRed, xOrg);
-
-        leftRightStageROI(sMat);
-
-        changeColorFromROI(oImage);
-
-        displayImage(oImage);
-
-        // need to clear
-        full_x_ROIcoord.clear();
-        full_y_ROIcoord.clear();
+        displayImage(mLeftRightChangeROI(oImage, min_A, max_A, min_Intense, max_Intense));
     }
 
     /*
