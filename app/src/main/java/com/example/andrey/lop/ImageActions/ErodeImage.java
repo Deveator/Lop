@@ -10,16 +10,16 @@ import static org.opencv.imgproc.Imgproc.MORPH_RECT;
 
 public class ErodeImage {
 
-    public static Mat getErodeImage(Mat mImg){
+    public static Mat getErodeImage(Mat mImg, int h, int w, int xK, int yK){
 
         Mat img = new Mat();
 
         Size kSize = new Size();
-        kSize.height = 5;
-        kSize.width = 5;
+        kSize.height = h;
+        kSize.width = w;
         Point kPoint = new Point();
-        kPoint.x = 3;
-        kPoint.y = 3;
+        kPoint.x = xK;
+        kPoint.y = yK;
 
         Mat kMat = Imgproc.getStructuringElement(MORPH_RECT, kSize, kPoint);
         Imgproc.erode(mImg,img,kMat);

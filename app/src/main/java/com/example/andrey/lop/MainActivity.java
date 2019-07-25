@@ -54,6 +54,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import static com.example.andrey.lop.ChangeValues.mChangeToCanny;
 import static com.example.andrey.lop.ChangeValues.mDownUpChangeROI;
 import static com.example.andrey.lop.ChangeValues.mLeftRightChangeROI;
 import static com.example.andrey.lop.ChangeValues.mRightLeftChangeROI;
@@ -191,7 +192,7 @@ public class MainActivity extends AppCompatActivity {
             // loadImage(path);
 
             oImage = OriginalImage.GetResizedImage(path);
-            // oImage2 = OriginalImage.GetOriginalImage(path, 4, 4);
+            oImage2 = OriginalImage.GetResizedImage(path);
 
             //Imgproc.cvtColor(oImage,oImage,Imgproc.COLOR_BGR2Lab);
             //Imgproc.cvtColor(oImage, oImage, Imgproc.COLOR_BGR2HSV);
@@ -1211,6 +1212,7 @@ public class MainActivity extends AppCompatActivity {
         setActualValues();
     }
 
+    // get actual values for using
     public void setActualValues() {
         min_A = Integer.valueOf(String.valueOf(infoTw2.getText()));
         max_A = Integer.valueOf(String.valueOf(infoTw4.getText()));
@@ -1236,6 +1238,11 @@ public class MainActivity extends AppCompatActivity {
     public void leftRightChange(View view) {
 
         displayImage(mLeftRightChangeROI(oImage, min_A, max_A, min_Intense, max_Intense));
+    }
+
+    public void changeToCanny(View view) {
+
+        displayImage(mChangeToCanny(oImage,oImage2));
     }
 
     /*

@@ -15,7 +15,8 @@ public class LabClass {
     public static ArrayList<Integer> all_C_Values = new ArrayList<Integer>();
     public static int mDone = 0;
 
-    static int maxA, minA, rMin, rMax, minIntense, maxIntense;
+    public static int maxA, minA, rMin, rMax, minIntense, maxIntense;
+
 
     private static void calculateMaxMinValues(Mat img) {
 
@@ -151,10 +152,26 @@ public class LabClass {
                 all_B_Values.add(i);
             }
             // set '165' instead on 'minIntense' for find Olga on photo
-            for (int i = 100; i < 210; i++) {
+            // if 157-197 is set - reason (minIntense+maxIntense)/2 - deviation 40
+            for (int i = minIntense; i < maxIntense; i++) {
                 all_C_Values.add(i);
             }
             mDone = 1;
+        }
+    }
+
+    public static void checkPreconditions(int vRmin, int vRmax, int vMinIntense, int vMaxIntense) {
+
+        all_A_Values.clear();
+        all_B_Values.clear();
+        all_C_Values.clear();
+
+        for (int i = vRmin; i < vRmax; i++) {
+            all_A_Values.add(i);
+            all_B_Values.add(i);
+        }
+        for (int i = vMinIntense; i < vMaxIntense; i++) {
+            all_C_Values.add(i);
         }
     }
 
@@ -216,15 +233,12 @@ public class LabClass {
                 if (all_A_Values.contains(aVal) && all_B_Values.contains(bVal) && all_C_Values.contains(cVal)) {
                     x_Cor.add(x);
                     y_Cor.add(y);
+                } else if (aVal == 128 && bVal == 128 && cVal == 255) {
                     sMark = 1;
-                }
-
-                /*
-                if (aVal == 128 && bVal == 128 && cVal == 255 && sMark == 1) {
-                    sMark = 0;
+                } else {
                     break;
                 }
-                */
+
             }
         }
         Imgproc.cvtColor(mat2, mat2, Imgproc.COLOR_Lab2BGR);
@@ -261,6 +275,143 @@ public class LabClass {
         System.out.println("x_Cor size: " + x_Cor.size());
     }
 
+    public static void upDownStageROI(Mat mat3) {
+        // no checkPreconditions() - is applied before first-time image is displayed.
+        Imgproc.cvtColor(mat3, mat3, Imgproc.COLOR_BGR2Lab);
+        int sMark_3 = 0;
+        for (int x = 0; x < mat3.cols(); x++) {
+            for (int y = 0; y < mat3.rows(); y++) {
+                double[] joy = mat3.get(y, x);
+                int cVal = (int) joy[0];
+                int aVal = (int) joy[1];
+                int bVal = (int) joy[2];
+                if (all_A_Values.contains(aVal) && all_B_Values.contains(bVal) && all_C_Values.contains(cVal)) {
+                    x_Cor.add(x);
+                    y_Cor.add(y);
+                } else if (aVal == 128 && bVal == 128 && cVal == 255) {
+                    sMark_3 = 1;
+                } else {
+                    break;
+                }
+            }
+        }
+        Imgproc.cvtColor(mat3, mat3, Imgproc.COLOR_Lab2BGR);
+        System.out.println("upDownROIStage completed");
+        System.out.println("x_Cor size: " + x_Cor.size());
+    }
+
+    public static void downUpStageROI(Mat mat3) {
+        // no checkPreconditions() - is applied before first-time image is displayed.
+        Imgproc.cvtColor(mat3, mat3, Imgproc.COLOR_BGR2Lab);
+        int sMark_3 = 0;
+
+        for (int x = 0; x < mat3.cols(); x++) {
+            for (int y = (mat3.rows() - 1); y >= 0; y--) {
+                double[] joy = mat3.get(y, x);
+                int cVal = (int) joy[0];
+                int aVal = (int) joy[1];
+                int bVal = (int) joy[2];
+                if (all_A_Values.contains(aVal) && all_B_Values.contains(bVal) && all_C_Values.contains(cVal)) {
+                    x_Cor.add(x);
+                    y_Cor.add(y);
+                } else if (aVal == 128 && bVal == 128 && cVal == 255) {
+                    sMark_3 = 1;
+                } else {
+                    break;
+                }
+            }
+        }
+        Imgproc.cvtColor(mat3, mat3, Imgproc.COLOR_Lab2BGR);
+        System.out.println("downUpStage completed");
+        System.out.println("x_Cor size: " + x_Cor.size());
+    }
+
+    public static void rightLeftStageROI(Mat mat3) {
+
+        Imgproc.cvtColor(mat3, mat3, Imgproc.COLOR_BGR2Lab);
+        int sMark_2 = 0;
+
+        for (int y = 0; y < mat3.rows(); y++) {
+            for (int x = (mat3.cols() - 1); x >= 0; x--) {
+                double[] joy = mat3.get(y, x);
+                int cVal = (int) joy[0];
+                int aVal = (int) joy[1];
+                int bVal = (int) joy[2];
+                if (all_A_Values.contains(aVal) && all_B_Values.contains(bVal) && all_C_Values.contains(cVal)) {
+                    x_Cor.add(x);
+                    y_Cor.add(y);
+                } else if (aVal == 128 && bVal == 128 && cVal == 255) {
+                    sMark_2 = 1;
+                } else {
+                    break;
+                }
+            }
+        }
+        Imgproc.cvtColor(mat3, mat3, Imgproc.COLOR_Lab2BGR);
+        System.out.println("rightLeftStage completed");
+        System.out.println("x_Cor size: " + x_Cor.size());
+    }
+
+    public static void leftRightStageROI(Mat mat2) {
+
+        Imgproc.cvtColor(mat2, mat2, Imgproc.COLOR_BGR2Lab);
+
+        int sMark = 0;
+        for (int y = 0; y < mat2.rows(); y++) {
+            for (int x = 0; x < mat2.cols(); x++) {
+                double[] joy = mat2.get(y, x);
+                int cVal = (int) joy[0];
+                int aVal = (int) joy[1];
+                int bVal = (int) joy[2];
+                if (all_A_Values.contains(aVal) && all_B_Values.contains(bVal) && all_C_Values.contains(cVal)) {
+                    x_Cor.add(x);
+                    y_Cor.add(y);
+                } else if (aVal == 128 && bVal == 128 && cVal == 255) {
+                    sMark = 1;
+                } else {
+                    break;
+                }
+
+            }
+        }
+        Imgproc.cvtColor(mat2, mat2, Imgproc.COLOR_Lab2BGR);
+        System.out.println("leftRightStage completed");
+        System.out.println("x_Cor size: " + x_Cor.size());
+    }
+
+    public static void downUpStage(Mat mat3) {
+
+        checkPreconditions(mat3);
+
+        System.out.println("upDownStage start");
+        System.out.println("all_A_Values size: " + all_A_Values.size());
+        System.out.println("all_C_Values size: " + all_C_Values.size());
+
+        Imgproc.cvtColor(mat3, mat3, Imgproc.COLOR_BGR2Lab);
+        int sMark_3 = 0;
+
+        for (int x = 0; x < mat3.cols(); x++) {
+            for (int y = (mat3.rows() - 1); y >= 0; y--) {
+                double[] joy = mat3.get(y, x);
+                int cVal = (int) joy[0];
+                int aVal = (int) joy[1];
+                int bVal = (int) joy[2];
+                if (all_A_Values.contains(aVal) && all_B_Values.contains(bVal) && all_C_Values.contains(cVal)) {
+                    x_Cor.add(x);
+                    y_Cor.add(y);
+                } else if (aVal == 128 && bVal == 128 && cVal == 255) {
+                    sMark_3 = 1;
+                } else {
+                    break;
+                }
+            }
+        }
+        Imgproc.cvtColor(mat3, mat3, Imgproc.COLOR_Lab2BGR);
+        System.out.println("downUpStage completed");
+        System.out.println("x_Cor size: " + x_Cor.size());
+    }
+
+
     public static void rightLeftStage(Mat mat3) {
         checkPreconditions(mat3);
         System.out.println("upDownStage start");
@@ -278,6 +429,10 @@ public class LabClass {
                 if (all_A_Values.contains(aVal) && all_B_Values.contains(bVal) && all_C_Values.contains(cVal)) {
                     x_Cor.add(x);
                     y_Cor.add(y);
+                } else if (aVal == 128 && bVal == 128 && cVal == 255) {
+                    sMark_2 = 1;
+                } else {
+                    break;
                 }
 
 

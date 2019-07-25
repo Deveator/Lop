@@ -19,6 +19,7 @@ public class DrawRect extends View {
     Point point1, point3;
     Point point2, point4;
     Point startMovePoint;
+    private static boolean moved = false;
 
 
     /**
@@ -32,8 +33,8 @@ public class DrawRect extends View {
     Paint paint;
     Canvas canvas;
     // variables help to getX&Ycoordinates
-    public static int xRed ;
-    public static int yRed ;
+    public static int xRed;
+    public static int yRed;
     public static int xOrg = -1;
     public static int yOrg = -1;
     public static int xYell = -1;
@@ -119,17 +120,26 @@ public class DrawRect extends View {
     // method to get ROI's corner XY_coordinates
     public static void getCoord() {
 
-        int matWidth = 750;
-        int screenWidth = 1080;
-        int matXred = xRed - ((screenWidth - matWidth) / 2);
-        int matXorg = xOrg - ((screenWidth - matWidth) / 2);
-        int matXyell = xYell - ((screenWidth - matWidth) / 2);
-        int matXgreen = xGreen - ((screenWidth - matWidth) / 2);
-        System.out.println("Red " + matXred + "::" + yRed);
-        System.out.println("Orange " + matXorg + "::" + yOrg);
-        System.out.println("Yellow " + matXyell + "::" + yYell);
-        System.out.println("Green " + matXgreen + "::" + yGreen);
-        // System.out.println(y++);
+        if (moved) {
+            int matWidth = 750;
+            int screenWidth = 1080;
+            xRed = xRed - ((screenWidth - matWidth) / 2);
+            xOrg = xOrg - ((screenWidth - matWidth) / 2);
+            xYell = xYell - ((screenWidth - matWidth) / 2);
+            xGreen = xGreen - ((screenWidth - matWidth) / 2);
+            System.out.println("Red " + xRed + "::" + yRed);
+            System.out.println("Orange " + xOrg + "::" + yOrg);
+            System.out.println("Yellow " + xYell + "::" + yYell);
+            System.out.println("Green " + xGreen + "::" + yGreen);
+            moved = false;
+
+        } else {
+            System.out.println("Red " + xRed + "::" + yRed);
+            System.out.println("Orange " + xOrg + "::" + yOrg);
+            System.out.println("Yellow " + xYell + "::" + yYell);
+            System.out.println("Green " + xGreen + "::" + yGreen);
+        }
+
 
     }
 
@@ -203,10 +213,12 @@ public class DrawRect extends View {
                             groupId = 2;
                             canvas.drawRect(point1.x, point3.y, point3.x, point1.y,
                                     paint);
+                            System.out.println("1");
                         } else {
                             groupId = 1;
                             canvas.drawRect(point2.x, point4.y, point4.x, point2.y,
                                     paint);
+                            System.out.println("2");
                         }
                         invalidate();
                         break;
@@ -225,12 +237,19 @@ public class DrawRect extends View {
                     paint.setColor(Color.CYAN);
 
                     if (groupId == 1) {
-                        colorballs.get(1).setX(colorballs.get(0).getX());
-                        colorballs.get(1).setY(colorballs.get(2).getY());
-                        colorballs.get(3).setX(colorballs.get(2).getX());
-                        colorballs.get(3).setY(colorballs.get(0).getY());
+                        // comment - green & orange change palces
+                       /// colorballs.get(1).setX(colorballs.get(0).getX());
+                       /// colorballs.get(1).setY(colorballs.get(2).getY());
+                       /// colorballs.get(3).setX(colorballs.get(2).getX());
+                       /// colorballs.get(3).setY(colorballs.get(0).getY());
+
+                        colorballs.get(1).setX(colorballs.get(2).getX());
+                        colorballs.get(1).setY(colorballs.get(0).getY());
+                        colorballs.get(3).setX(colorballs.get(0).getX());
+                        colorballs.get(3).setY(colorballs.get(2).getY());
                         canvas.drawRect(point1.x, point3.y, point3.x, point1.y,
                                 paint);
+                        System.out.println("3");
                     } else {
                         colorballs.get(0).setX(colorballs.get(1).getX());
                         colorballs.get(0).setY(colorballs.get(3).getY());
@@ -238,6 +257,7 @@ public class DrawRect extends View {
                         colorballs.get(2).setY(colorballs.get(1).getY());
                         canvas.drawRect(point2.x, point4.y, point4.x, point2.y,
                                 paint);
+                        System.out.println("4");
                     }
                     invalidate();
                 } else {
@@ -256,11 +276,13 @@ public class DrawRect extends View {
                         colorballs.get(2).addY(diffY);
                         colorballs.get(3).addY(diffY);
                         if (groupId == 1)
+
                             canvas.drawRect(point1.x, point3.y, point3.x, point1.y,
                                     paint);
                         else
                             canvas.drawRect(point2.x, point4.y, point4.x, point2.y,
                                     paint);
+                        System.out.println("5");
                         invalidate();
                     }
                 }
@@ -281,8 +303,8 @@ public class DrawRect extends View {
         yYell = point3.y;
         xGreen = point4.x;
         yGreen = point4.y;
+        moved = true;
         return true;
-
     }
 
     public void shade_region_between_points() {
