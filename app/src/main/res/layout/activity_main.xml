@@ -33,12 +33,12 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="5"
+            android:layout_weight="4"
             android:orientation="horizontal">
 
             <Button
                 android:id="@+id/button1"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:onClick="openGallery"
@@ -47,42 +47,32 @@
                 android:textSize="10sp" />
 
             <Button
-                android:id="@+id/button2"
-                android:layout_width="wrap_content"
+                android:id="@+id/button7"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:onClick="actionAny"
-                android:text="getCntr"
+                android:onClick="innerChng"
+                android:text="ROIChClrIn"
                 android:textAllCaps="false"
                 android:textSize="10sp" />
 
             <Button
-                android:id="@+id/button3"
-                android:layout_width="wrap_content"
+                android:id="@+id/button23"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:onClick="summary"
-                android:text="Plus"
+                android:onClick="changeToCanny"
+                android:text="Canny"
                 android:textAllCaps="false"
                 android:textSize="10sp" />
 
             <Button
-                android:id="@+id/button4"
-                android:layout_width="wrap_content"
+                android:id="@+id/button10"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:onClick="getRoiXy"
-                android:text="ROI_xy"
-                android:textAllCaps="false"
-                android:textSize="10sp" />
-
-            <Button
-                android:id="@+id/button9"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:onClick="jackStay"
-                android:text="jackStay"
+                android:onClick="saveImg"
+                android:text="Save"
                 android:textAllCaps="false"
                 android:textSize="10sp" />
         </LinearLayout>
@@ -90,58 +80,77 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="5"
+            android:layout_weight="4"
             android:orientation="horizontal">
 
-            <Button
-                android:id="@+id/button5"
-                android:layout_width="wrap_content"
+            <TextView
+                android:id="@+id/tW9"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:onClick="getFullRoiXy"
-                android:text="ROIfull"
+                android:text="Tr1-" />
+
+            <TextView
+                android:id="@+id/tW10"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textStyle="bold"
+                android:layout_weight="1" />
+
+            <Button
+                android:id="@+id/button24"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:onClick="plusTr1"
+                android:text="+"
                 android:textAllCaps="false"
                 android:textSize="10sp" />
 
             <Button
-                android:id="@+id/button6"
-                android:layout_width="wrap_content"
+                android:id="@+id/button25"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:onClick="changeColorRoiBgrnd"
-                android:text="ROIChClrBgd"
+                android:onClick="minusTr1"
+                android:text="-"
+                android:textAllCaps="false"
+                android:textSize="10sp" />
+
+            <TextView
+                android:id="@+id/tW11"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Tr2-" />
+
+            <TextView
+                android:id="@+id/tW12"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textStyle="bold"
+                android:layout_weight="1" />
+
+            <Button
+                android:id="@+id/button26"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:onClick="plusTr2"
+                android:text="+"
                 android:textAllCaps="false"
                 android:textSize="10sp" />
 
             <Button
-                android:id="@+id/button7"
-                android:layout_width="wrap_content"
+                android:id="@+id/button27"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:onClick="changeColorRoiInner"
-                android:text="ROIChClrIn"
+                android:onClick="minusTr2"
+                android:text="-"
                 android:textAllCaps="false"
                 android:textSize="10sp" />
 
-            <Button
-                android:id="@+id/button8"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:onClick="getColorRoi"
-                android:text="ROIGetClr"
-                android:textAllCaps="false"
-                android:textSize="10sp" />
-
-            <Button
-                android:id="@+id/button10"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:onClick="saveImg"
-                android:text="Save"
-                android:textAllCaps="false"
-                android:textSize="10sp" />
         </LinearLayout>
 
         <LinearLayout
@@ -161,7 +170,8 @@
                 android:id="@+id/tW2"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1" />
+                android:layout_weight="1"
+                android:textStyle="bold" />
 
             <Button
                 android:id="@+id/button11"
@@ -194,6 +204,7 @@
                 android:id="@+id/tW4"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:textStyle="bold"
                 android:layout_weight="1" />
 
             <Button
@@ -236,6 +247,7 @@
                 android:id="@+id/tW6"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:textStyle="bold"
                 android:layout_weight="1" />
 
             <Button
@@ -269,6 +281,7 @@
                 android:id="@+id/tW8"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:textStyle="bold"
                 android:layout_weight="1" />
 
             <Button
@@ -337,23 +350,6 @@
                 android:layout_weight="1"
                 android:onClick="rightLeftChange"
                 android:text="rightLeft"
-                android:textAllCaps="false"
-                android:textSize="10sp" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:orientation="horizontal">
-
-            <Button
-                android:id="@+id/button23"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:onClick="changeToCanny"
-                android:text="Canny"
                 android:textAllCaps="false"
                 android:textSize="10sp" />
         </LinearLayout>

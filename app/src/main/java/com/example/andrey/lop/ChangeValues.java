@@ -112,7 +112,7 @@ public class ChangeValues {
     }
 
     // 2 Mat parameters - working and displaying
-    public static Mat mChangeToCanny(Mat oMat, Mat oMat2) {
+    public static Mat mChangeToCanny(Mat oMat, Mat oMat2, int tr_1, int tr_2) {
 
         DrawRect.getCoord();
 
@@ -120,7 +120,7 @@ public class ChangeValues {
 
         Imgproc.cvtColor(sMat, sMat, Imgproc.COLOR_BGR2GRAY);
 
-        Imgproc.Canny(sMat, sMat, 25, 100 * 2);
+        Imgproc.Canny(sMat, sMat, tr_1, tr_2);
 
         ArrayList<Double> subMatValue = new ArrayList<>();
 

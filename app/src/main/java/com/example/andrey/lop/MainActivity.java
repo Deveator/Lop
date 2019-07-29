@@ -122,10 +122,11 @@ public class MainActivity extends AppCompatActivity {
     public static int maxAfromROI, minAfromROI, rMinfromROI, rMaxfromROI, minIntensefromROI, maxIntensefromROI, min_A, max_A, min_Intense, max_Intense;
 
     ImageView iV, iV2, iV3, iV4;
-    Button bttn, bttn2, bttn3, bttn4, bttn5, bttn6, bttn7, bttn8, bttn9, bttn10, bttn11, bttn12, bttn13, bttn14;
-    TextView infoTw1, infoTw2, infoTw3, infoTw4, infoTw5, infoTw6, infoTw7, infoTw8;
+    Button bttn, bttn2, bttn3, bttn4, bttn5, bttn6, bttn7, bttn8, bttn9, bttn10, bttn11, bttn12, bttn13, bttn14,bttn24;
+    TextView infoTw1, infoTw2, infoTw3, infoTw4, infoTw5, infoTw6, infoTw7, infoTw8, infoTw9, infoTw10,infoTw11, infoTw12;
     static int mark = 0;
     static int mark2 = 0;
+    public static int thres_1 = 100, thres_2 = 200;
     Mat oImage, oImage2, houghImage, helpImg, houghCirculeImage, greyImage, greyImage2, cannyImage, gaussianImage, filter2DImage_2, filter2DImage, preImg, preImg_2, anPreImg, labImg;
     int tX, tY;
     double Dx1, Dx2, Dy1, Dy2;
@@ -148,20 +149,21 @@ public class MainActivity extends AppCompatActivity {
         OpenCVLoader.initDebug();
 
         iV = findViewById(R.id.imageV);
-        bttn = findViewById(R.id.button1);
-        bttn2 = findViewById(R.id.button2);
-        bttn3 = findViewById(R.id.button3);
-        bttn4 = findViewById(R.id.button4);
-        bttn5 = findViewById(R.id.button5);
-        bttn6 = findViewById(R.id.button6);
+        //  bttn = findViewById(R.id.button1);
+        //  bttn2 = findViewById(R.id.button2);
+        //  bttn3 = findViewById(R.id.button3);
+        //   bttn4 = findViewById(R.id.button4);
+        //   bttn5 = findViewById(R.id.button5);
+        //   bttn6 = findViewById(R.id.button6);
         bttn7 = findViewById(R.id.button7);
-        bttn8 = findViewById(R.id.button8);
-        bttn9 = findViewById(R.id.button9);
+        //   bttn8 = findViewById(R.id.button8);
+        //   bttn9 = findViewById(R.id.button9);
         bttn10 = findViewById(R.id.button10);
         bttn11 = findViewById(R.id.button11);
         bttn12 = findViewById(R.id.button12);
         bttn13 = findViewById(R.id.button13);
         bttn14 = findViewById(R.id.button14);
+        bttn24 = findViewById(R.id.button24);
         infoTw1 = findViewById(R.id.tW1);
         infoTw2 = findViewById(R.id.tW2);
         infoTw3 = findViewById(R.id.tW3);
@@ -170,6 +172,10 @@ public class MainActivity extends AppCompatActivity {
         infoTw6 = findViewById(R.id.tW6);
         infoTw7 = findViewById(R.id.tW7);
         infoTw8 = findViewById(R.id.tW8);
+        infoTw9 = findViewById(R.id.tW9);
+        infoTw10 = findViewById(R.id.tW10);
+        infoTw11 = findViewById(R.id.tW11);
+        infoTw12 = findViewById(R.id.tW12);
     }
 
     public void openGallery(View v) {
@@ -300,6 +306,8 @@ public class MainActivity extends AppCompatActivity {
                     infoTw4.append(Integer.toString(rMax));
                     infoTw6.append(Integer.toString(minIntense));
                     infoTw8.append(Integer.toString(maxIntense));
+                    infoTw10.append(Integer.toString(thres_1));
+                    infoTw12.append(Integer.toString(thres_2));
                     setActualValues();
 
                     displayImage(oImage);
@@ -835,7 +843,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    public void changeColorRoiInner(View view) {
+    public void innerChng(View view) {
 
         DrawRect.getCoord();
 
@@ -858,7 +866,6 @@ public class MainActivity extends AppCompatActivity {
         Imgproc.cvtColor(preImg, preImg, Imgproc.COLOR_Lab2BGR);
         changeColor(preImg);
         displayImage(preImg, 1);
-
     }
 
     // try to change image in HSV format
@@ -1212,12 +1219,42 @@ public class MainActivity extends AppCompatActivity {
         setActualValues();
     }
 
+    public void plusTr1(View view) {
+        int min = Integer.valueOf(String.valueOf(infoTw10.getText()));
+        min++;
+        infoTw10.setText(String.valueOf(min));
+        setActualValues();
+    }
+
+    public void minusTr1(View view) {
+        int min = Integer.valueOf(String.valueOf(infoTw10.getText()));
+        min--;
+        infoTw10.setText(String.valueOf(min));
+        setActualValues();
+    }
+
+    public void plusTr2(View view) {
+        int max = Integer.valueOf(String.valueOf(infoTw12.getText()));
+        max++;
+        infoTw12.setText(String.valueOf(max));
+        setActualValues();
+    }
+
+    public void minusTr2(View view) {
+        int max = Integer.valueOf(String.valueOf(infoTw12.getText()));
+        max--;
+        infoTw12.setText(String.valueOf(max));
+        setActualValues();
+    }
+
     // get actual values for using
     public void setActualValues() {
         min_A = Integer.valueOf(String.valueOf(infoTw2.getText()));
         max_A = Integer.valueOf(String.valueOf(infoTw4.getText()));
         min_Intense = Integer.valueOf(String.valueOf(infoTw6.getText()));
         max_Intense = Integer.valueOf(String.valueOf(infoTw8.getText()));
+        thres_1 = Integer.valueOf(String.valueOf(infoTw10.getText()));
+        thres_2 = Integer.valueOf(String.valueOf(infoTw12.getText()));
     }
 
     public void upDownChange(View view) {
@@ -1242,7 +1279,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void changeToCanny(View view) {
 
-        displayImage(mChangeToCanny(oImage,oImage2));
+        displayImage(mChangeToCanny(oImage, oImage2, thres_1, thres_2));
     }
 
     /*

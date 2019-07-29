@@ -213,12 +213,10 @@ public class DrawRect extends View {
                             groupId = 2;
                             canvas.drawRect(point1.x, point3.y, point3.x, point1.y,
                                     paint);
-                            System.out.println("1");
                         } else {
                             groupId = 1;
                             canvas.drawRect(point2.x, point4.y, point4.x, point2.y,
                                     paint);
-                            System.out.println("2");
                         }
                         invalidate();
                         break;
@@ -249,7 +247,6 @@ public class DrawRect extends View {
                         colorballs.get(3).setY(colorballs.get(2).getY());
                         canvas.drawRect(point1.x, point3.y, point3.x, point1.y,
                                 paint);
-                        System.out.println("3");
                     } else {
                         colorballs.get(0).setX(colorballs.get(1).getX());
                         colorballs.get(0).setY(colorballs.get(3).getY());
@@ -257,7 +254,6 @@ public class DrawRect extends View {
                         colorballs.get(2).setY(colorballs.get(1).getY());
                         canvas.drawRect(point2.x, point4.y, point4.x, point2.y,
                                 paint);
-                        System.out.println("4");
                     }
                     invalidate();
                 } else {
@@ -282,7 +278,6 @@ public class DrawRect extends View {
                         else
                             canvas.drawRect(point2.x, point4.y, point4.x, point2.y,
                                     paint);
-                        System.out.println("5");
                         invalidate();
                     }
                 }
