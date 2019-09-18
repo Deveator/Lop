@@ -26,6 +26,9 @@ public class OriginalImage {
         Mat orImage = new Mat();
         Mat originImg = Imgcodecs.imread(path);// image is BGR format , try to get format
         Size sz = new Size(750, 1000);
+
+            System.out.println(originImg.size());
+
         Imgproc.resize(originImg, orImage, sz);
         //  orImage = originImg;
         Imgproc.cvtColor(orImage, orImage, Imgproc.COLOR_BGR2RGB);

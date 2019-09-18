@@ -1,6 +1,7 @@
 package com.example.andrey.lop;
 
 import com.example.andrey.lop.CustomView.DrawRect;
+import com.example.andrey.lop.ImageActions.ErodeImage;
 
 import org.opencv.core.Mat;
 import org.opencv.imgproc.Imgproc;
@@ -130,6 +131,7 @@ public class ChangeValues {
                 subMatValue.add(ft2[0]);
             }
         }
+
         int count = 0;
         for (int x = xRed; x < xYell; x++) {
             for (int y = yRed; y < yYell; y++) {

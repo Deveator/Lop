@@ -199,6 +199,7 @@ public class MainActivity extends AppCompatActivity {
 
             oImage = OriginalImage.GetResizedImage(path);
             oImage2 = OriginalImage.GetResizedImage(path);
+            System.out.println(oImage.type());
 
             //Imgproc.cvtColor(oImage,oImage,Imgproc.COLOR_BGR2Lab);
             //Imgproc.cvtColor(oImage, oImage, Imgproc.COLOR_BGR2HSV);
@@ -847,12 +848,12 @@ public class MainActivity extends AppCompatActivity {
 
         DrawRect.getCoord();
 
-        Imgproc.cvtColor(preImg, preImg, Imgproc.COLOR_BGR2Lab);
+        Imgproc.cvtColor(oImage, oImage, Imgproc.COLOR_BGR2Lab);
 
         // codeBlock change color upDown
         for (int x = xRed; x < (xYell + 1); x++) {
             for (int y = yRed; y < (yYell + 1); y++) {
-                double[] joy = preImg.get(y, x);
+                double[] joy = oImage.get(y, x);
                 int cVal = (int) joy[0];
                 int aVal = (int) joy[1];
                 int bVal = (int) joy[2];
@@ -863,9 +864,9 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-        Imgproc.cvtColor(preImg, preImg, Imgproc.COLOR_Lab2BGR);
-        changeColor(preImg);
-        displayImage(preImg, 1);
+        Imgproc.cvtColor(oImage, oImage, Imgproc.COLOR_Lab2BGR);
+        changeColor(oImage);
+        displayImage(oImage, 1);
     }
 
     // try to change image in HSV format
@@ -1141,8 +1142,6 @@ public class MainActivity extends AppCompatActivity {
         ppt.add(matPt);
 
         Imgproc.fillPoly(mImg, ppt, new Scalar(178, 149, 12), lineType, shift, new Point(0, 0));
-
-
     }
 
     public Mat drawLine(Mat img) {
@@ -1160,7 +1159,6 @@ public class MainActivity extends AppCompatActivity {
         Imgproc.line(img, start3, end3, new Scalar(0, 0, 0), 2);
         Imgproc.line(img, start4, end4, new Scalar(0, 0, 0), 2);
         return img;
-
     }
 
     public void plusMin_A(View view) {
@@ -1258,29 +1256,34 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void upDownChange(View view) {
-
         displayImage(mUpDownChangeROI(oImage, min_A, max_A, min_Intense, max_Intense));
+        oImage2 = oImage;
     }
 
     public void downUpChange(View view) {
-
         displayImage(mDownUpChangeROI(oImage, min_A, max_A, min_Intense, max_Intense));
+        oImage2 = oImage;
     }
 
     public void rightLeftChange(View view) {
-
         displayImage(mRightLeftChangeROI(oImage, min_A, max_A, min_Intense, max_Intense));
+        oImage2 = oImage;
     }
 
     public void leftRightChange(View view) {
-
         displayImage(mLeftRightChangeROI(oImage, min_A, max_A, min_Intense, max_Intense));
+        oImage2 = oImage;
     }
 
     public void changeToCanny(View view) {
-
         displayImage(mChangeToCanny(oImage, oImage2, thres_1, thres_2));
     }
+
+    public void getContour(View view){
+     // Mat m =   mUpDownChangeROI(oImage, min_A, max_A, min_Intense, max_Intense);
+        displayImage(ContourImage.getMainContourFromROI(oImage,oImage2));
+    }
+
 
     /*
     private void loadImage(String path) {
