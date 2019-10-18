@@ -17,6 +17,7 @@ import static com.example.andrey.lop.CustomView.DrawRect.yOrg;
 import static com.example.andrey.lop.CustomView.DrawRect.yRed;
 import static com.example.andrey.lop.CustomView.DrawRect.yYell;
 import static com.example.andrey.lop.ImageActions.LabClass.checkPreconditions;
+import static com.example.andrey.lop.ImageActions.LabClass.downUpStageROI;
 import static com.example.andrey.lop.ImageActions.LabClass.leftRightStageROI;
 import static com.example.andrey.lop.ImageActions.LabClass.rightLeftStageROI;
 import static com.example.andrey.lop.ImageActions.LabClass.upDownStageROI;
@@ -29,7 +30,7 @@ public class ChangeValues {
 
     public static Mat mUpDownChangeROI(Mat oMat, int vAMin, int vAMax, int vInMin, int vInMax) {
 
-        DrawRect.getCoord();
+        ///  DrawRect.getCoord();
 
         mFullRoiXy();
 
@@ -40,15 +41,19 @@ public class ChangeValues {
 
         Mat sMat = oMat.submat(yRed, yGreen, xRed, xOrg);
 
+
+
         checkPreconditions(vAMin, vAMax, vInMin, vInMax);
 
         upDownStageROI(sMat);
 
         changeColorFromROI(oMat);
+        /*
         // need to clear
         full_x_ROIcoord.clear();
         full_y_ROIcoord.clear();
 
+*/
         return oMat;
     }
 
@@ -62,7 +67,7 @@ public class ChangeValues {
 
         checkPreconditions(vAMin, vAMax, vInMin, vInMax);
 
-        upDownStageROI(sMat);
+        downUpStageROI(sMat);
 
         changeColorFromROI(oMat);
         // need to clear

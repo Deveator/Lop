@@ -1,5 +1,6 @@
 package com.example.andrey.lop;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -8,9 +9,15 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.support.v7.app.AppCompatActivity;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.GestureDetectorCompat;
+
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -18,30 +25,21 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.andrey.lop.CustomView.DrawRect;
-import com.example.andrey.lop.ImageActions.BasicDrawing;
-import com.example.andrey.lop.ImageActions.CannyImage;
+import com.example.andrey.lop.CustomView.MyImageView;
 import com.example.andrey.lop.ImageActions.ContourImage;
-import com.example.andrey.lop.ImageActions.DilateImage;
 import com.example.andrey.lop.ImageActions.ErodeImage;
-import com.example.andrey.lop.ImageActions.FaceDetect;
-import com.example.andrey.lop.ImageActions.FindContourImage;
 import com.example.andrey.lop.ImageActions.FromWhiteToBlackBackgrnd;
-import com.example.andrey.lop.ImageActions.FullBody;
-import com.example.andrey.lop.ImageActions.GaussianImage;
-import com.example.andrey.lop.ImageActions.GetHUEValue;
 import com.example.andrey.lop.ImageActions.GrayImage;
 import com.example.andrey.lop.ImageActions.LabClass;
-import com.example.andrey.lop.ImageActions.LabImg;
 import com.example.andrey.lop.ImageActions.OriginalImage;
-import com.example.andrey.lop.ImageActions.SURFFLANNMatchingHomography;
-import com.example.andrey.lop.ImageActions.SobelImage;
-import com.example.andrey.lop.ImageActions.TestClass;
+import com.github.chrisbanes.photoview.PhotoView;
 
 import org.opencv.android.OpenCVLoader;
 import org.opencv.android.Utils;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.Point;
+import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
@@ -67,27 +65,18 @@ import static com.example.andrey.lop.CustomView.DrawRect.yGreen;
 import static com.example.andrey.lop.CustomView.DrawRect.yOrg;
 import static com.example.andrey.lop.CustomView.DrawRect.yRed;
 import static com.example.andrey.lop.CustomView.DrawRect.yYell;
-import static com.example.andrey.lop.ImageActions.FindContourImage.contours2;
 import static com.example.andrey.lop.ImageActions.FindContourImage.xCorC;
 import static com.example.andrey.lop.ImageActions.FindContourImage.yCorC;
 import static com.example.andrey.lop.ImageActions.LabClass.all_A_Values;
 import static com.example.andrey.lop.ImageActions.LabClass.all_B_Values;
 import static com.example.andrey.lop.ImageActions.LabClass.all_C_Values;
 import static com.example.andrey.lop.ImageActions.LabClass.checkPreconditions;
-import static com.example.andrey.lop.ImageActions.LabClass.downUpStageROI;
-import static com.example.andrey.lop.ImageActions.LabClass.leftRightStageROI;
 import static com.example.andrey.lop.ImageActions.LabClass.maxIntense;
 import static com.example.andrey.lop.ImageActions.LabClass.minIntense;
 import static com.example.andrey.lop.ImageActions.LabClass.rMax;
 import static com.example.andrey.lop.ImageActions.LabClass.rMin;
-import static com.example.andrey.lop.ImageActions.LabClass.rightLeftStageROI;
-import static com.example.andrey.lop.ImageActions.LabClass.upDownStageROI;
 import static com.example.andrey.lop.ImageActions.LabClass.x_Cor;
 import static com.example.andrey.lop.ImageActions.LabClass.y_Cor;
-import static com.example.andrey.lop.ImageActions.LabImg.xCor;
-import static com.example.andrey.lop.ImageActions.LabImg.yCor;
-import static com.example.andrey.lop.ImageActions.TestClass.allX;
-import static com.example.andrey.lop.ImageActions.TestClass.allY;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -121,23 +110,29 @@ public class MainActivity extends AppCompatActivity {
 
     public static int maxAfromROI, minAfromROI, rMinfromROI, rMaxfromROI, minIntensefromROI, maxIntensefromROI, min_A, max_A, min_Intense, max_Intense;
 
-    ImageView iV, iV2, iV3, iV4;
-    Button bttn, bttn2, bttn3, bttn4, bttn5, bttn6, bttn7, bttn8, bttn9, bttn10, bttn11, bttn12, bttn13, bttn14,bttn24;
-    TextView infoTw1, infoTw2, infoTw3, infoTw4, infoTw5, infoTw6, infoTw7, infoTw8, infoTw9, infoTw10,infoTw11, infoTw12;
+    ImageView iV2, iV3, iV4;
+    Button bttn, bttn2, bttn3, bttn4, bttn5, bttn6, bttn7, bttn8, bttn9, bttn10, bttn11, bttn12, bttn13, bttn14, bttn24;
+    TextView infoTw1, infoTw2, infoTw3, infoTw4, infoTw5, infoTw6, infoTw7, infoTw8, infoTw9, infoTw10, infoTw11, infoTw12;
     static int mark = 0;
     static int mark2 = 0;
+    static int m = 3;
+    public static int screenWidth, idealWidth, idealHeight, originalHeight, originalWidth;
     public static int thres_1 = 100, thres_2 = 200;
-    Mat oImage, oImage2, houghImage, helpImg, houghCirculeImage, greyImage, greyImage2, cannyImage, gaussianImage, filter2DImage_2, filter2DImage, preImg, preImg_2, anPreImg, labImg;
+    Mat oImage, oImage2, _oImage, _oImage2, zoomMat, helpImg, houghCirculeImage, greyImage, greyImage2, cannyImage, gaussianImage, filter2DImage_2, filter2DImage, preImg, preImg_2, anPreImg, labImg;
     int tX, tY;
     double Dx1, Dx2, Dy1, Dy2;
     int d;
-    Bitmap bitmapS;
+    Bitmap zoomedBitmap, bitmapS, bitmapS2;
     public static String path;
     public static CascadeClassifier cascadeClassifier;
     int pon = 0;
+    PhotoView photoView;
+    View view3;
+    MyImageView iV;
+    GestureDetectorCompat mGestureDetector;
 
     //  Mat sampledImg = new Mat();
-    //  Mat rgbImg = new Mat();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -145,19 +140,11 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         System.loadLibrary("opencv_java3");
-        //   System.loadLibrary("opencv");
+
         OpenCVLoader.initDebug();
 
-        iV = findViewById(R.id.imageV);
-        //  bttn = findViewById(R.id.button1);
-        //  bttn2 = findViewById(R.id.button2);
-        //  bttn3 = findViewById(R.id.button3);
-        //   bttn4 = findViewById(R.id.button4);
-        //   bttn5 = findViewById(R.id.button5);
-        //   bttn6 = findViewById(R.id.button6);
+
         bttn7 = findViewById(R.id.button7);
-        //   bttn8 = findViewById(R.id.button8);
-        //   bttn9 = findViewById(R.id.button9);
         bttn10 = findViewById(R.id.button10);
         bttn11 = findViewById(R.id.button11);
         bttn12 = findViewById(R.id.button12);
@@ -176,6 +163,10 @@ public class MainActivity extends AppCompatActivity {
         infoTw10 = findViewById(R.id.tW10);
         infoTw11 = findViewById(R.id.tW11);
         infoTw12 = findViewById(R.id.tW12);
+        iV = findViewById(R.id.imageV);
+        view3 = findViewById(R.id.imageV5);
+
+
     }
 
     public void openGallery(View v) {
@@ -197,9 +188,30 @@ public class MainActivity extends AppCompatActivity {
 
             // loadImage(path);
 
-            oImage = OriginalImage.GetResizedImage(path);
-            oImage2 = OriginalImage.GetResizedImage(path);
-            System.out.println(oImage.type());
+            //   _oImage = photoView.setImageURI();
+
+            DisplayMetrics displayMetrics = new DisplayMetrics();
+            getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+            screenWidth = displayMetrics.widthPixels;
+
+            oImage = OriginalImage.getRequiredSizeImage(path);
+            // OriginalImage.calculateRequiredSize(path);
+            // adopt image to screen size
+            //  oImage = OriginalImage.GetAdoptedImage(path);
+            oImage2 = OriginalImage.GetAdoptedImage(path);
+/*
+            Point centerHandR = new Point(230.0, 875.0);
+            Imgproc.ellipse(oImage, centerHandR, new Size(65, 65), 0, 0, 360,
+                    new Scalar(255, 0, 255), 2);
+
+            Point centerHandL = new Point(500.0, 870.0);
+            Imgproc.ellipse(oImage, centerHandL, new Size(60, 60), 0, 0, 360,
+                    new Scalar(255, 0, 255), 2);
+
+            Point centerHead = new Point(360.0, 300.0);
+            Imgproc.ellipse(oImage, centerHead, new Size(110, 110), 0, 0, 360,
+                    new Scalar(255, 0, 255), 2);
+*/
 
             //Imgproc.cvtColor(oImage,oImage,Imgproc.COLOR_BGR2Lab);
             //Imgproc.cvtColor(oImage, oImage, Imgproc.COLOR_BGR2HSV);
@@ -301,7 +313,10 @@ public class MainActivity extends AppCompatActivity {
                     */
 
                     // get value of background color
-                    checkPreconditions(oImage);
+                    //// checkPreconditions(oImage);
+//by default here should be oImage,oImage2 is set because of surrounded hands
+/*
+                    checkPreconditions(oImage2);
 
                     infoTw2.append(Integer.toString(rMin));
                     infoTw4.append(Integer.toString(rMax));
@@ -310,8 +325,11 @@ public class MainActivity extends AppCompatActivity {
                     infoTw10.append(Integer.toString(thres_1));
                     infoTw12.append(Integer.toString(thres_2));
                     setActualValues();
+*/
+                    view3.setVisibility(View.INVISIBLE);
 
                     displayImage(oImage);
+
 
                     ///   LabClass.leftRightStage(oImage);
 
@@ -594,10 +612,68 @@ public class MainActivity extends AppCompatActivity {
 
         bitmapS = Bitmap.createBitmap(mat.cols(), mat.rows(), Bitmap.Config.RGB_565);
 
+
         Utils.matToBitmap(mat, bitmapS);
+        iV.setMinimumWidth(idealWidth);
+        iV.setMaxWidth(idealWidth);
+        iV.setMinimumHeight(idealHeight);
+        iV.setMaxHeight(idealHeight);
+        // System.out.println("Start");
+        //System.out.println(iV.getWidth());
+        // System.out.println(iV.getHeight());
 
         if (mark == 0) {
+
             iV.setImageBitmap(bitmapS);
+
+
+         /*   iV.setOnTouchListener(new View.OnTouchListener() {
+
+                                      //   int x = (int) event.getX();
+                                      //    int y = (int) event.getY();
+                                      @Override
+                                      public boolean onTouch(View v, MotionEvent event) {
+
+                                          int ad = (screenWidth - idealWidth) / 2;
+                                          int x = (int) event.getX() - ad;
+                                          int y = (int) event.getY();
+                                          System.out.println("Current");
+                                          System.out.println(x * 4);
+                                          System.out.println(y * 4);
+
+                  /*
+                    Rect rectCrop = new Rect(x, y, 600, 800);
+                    Mat imageROI = oImage.submat(rectCrop);
+                    bitmapS2 = Bitmap.createBitmap(imageROI.cols(), imageROI.rows(), Bitmap.Config.RGB_565);
+                    Utils.matToBitmap(imageROI, bitmapS2);
+                    iV.setImageBitmap(bitmapS2);
+
+*/
+         /*
+                                          return true;
+                                      }
+                                  }
+            );
+            */
+
+
+////
+            /*
+            iV.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    AlertDialog.Builder mBuilder = new AlertDialog.Builder(MainActivity.this);
+                    View mView = getLayoutInflater().inflate(R.layout.dialog_custom_layout, null);
+                    PhotoView photoView = mView.findViewById(R.id.imageView);
+                    photoView.setImageBitmap(bitmapS);
+                    mBuilder.setView(mView);
+                    AlertDialog mDialog = mBuilder.create();
+                    mDialog.show();
+
+                }
+            });
+            */
+/////
             matImg1 = mat;
         }
         if (mark == 1) {
@@ -846,6 +922,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void innerChng(View view) {
 
+
         DrawRect.getCoord();
 
         Imgproc.cvtColor(oImage, oImage, Imgproc.COLOR_BGR2Lab);
@@ -867,6 +944,8 @@ public class MainActivity extends AppCompatActivity {
         Imgproc.cvtColor(oImage, oImage, Imgproc.COLOR_Lab2BGR);
         changeColor(oImage);
         displayImage(oImage, 1);
+
+
     }
 
     // try to change image in HSV format
@@ -1053,7 +1132,69 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    // create/save zoomed bitmap for later use
+    public void createZoomedBitmap() {
+
+        iV.setDrawingCacheEnabled(true);
+        iV.buildDrawingCache(true);
+        zoomedBitmap = Bitmap.createScaledBitmap(iV.getDrawingCache(true), iV.getWidth(), iV.getHeight(), true);
+        iV.setDrawingCacheEnabled(false);
+    }
+
+    public void getZoomedBitmap(View view) {
+
+
+        createZoomedBitmap();
+
+        // START creating directory for images
+        String root = Environment.getExternalStorageDirectory().toString();
+        File myDir = new File(root + "/App_images");
+        if (!myDir.exists()) {
+            myDir.mkdir();
+        }
+        // STOP creating directory for images
+        Random generator = new Random();
+        int n = 10000;
+        n = generator.nextInt(n);
+        String fname = "Image-" + n + ".jpg";
+        File file = new File(myDir, fname);
+        String zoomedImgPath = file.toString();
+        if (file.exists()) file.delete();
+        try {
+            FileOutputStream out = new FileOutputStream(file);
+            System.out.println(155);
+            // instead of 'zoomedBitmap' should be another
+            zoomedBitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
+            out.flush();
+            out.close();
+            Toast.makeText(getApplicationContext(), zoomedImgPath + " is saved", Toast.LENGTH_SHORT).show();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        zoomMat = new Mat();
+        zoomMat = OriginalImage.GetImage(zoomedImgPath);
+        //Utils.bitmapToMat(zoomedBitmap, zoomMat);
+
+
+/*
+        if(zoomedBitmap!=null){
+            Toast.makeText(getApplicationContext(), "ZoomedBitmap created", Toast.LENGTH_SHORT).show();
+        }else{
+            Toast.makeText(getApplicationContext(), "No zoomedBitmap", Toast.LENGTH_SHORT).show();
+        }
+        zoomMat = new Mat();
+       // Mat src = new Mat();
+        Utils.bitmapToMat(zoomedBitmap, zoomMat);
+
+        System.out.println("Height - " + zoomMat.rows());
+        System.out.println("Width - " + zoomMat.cols());
+        */
+    }
+
     public void saveImg(View view) {
+        //
+        //  view3.setVisibility(View.INVISIBLE);
+
         // START creating directory for images
         String root = Environment.getExternalStorageDirectory().toString();
         File myDir = new File(root + "/App_images");
@@ -1071,6 +1212,7 @@ public class MainActivity extends AppCompatActivity {
         try {
             FileOutputStream out = new FileOutputStream(file);
             System.out.println(155);
+            // instead of 'zoomedBitmap' should be another
             bitmapS.compress(Bitmap.CompressFormat.JPEG, 100, out);
             out.flush();
             out.close();
@@ -1256,8 +1398,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void upDownChange(View view) {
-        displayImage(mUpDownChangeROI(oImage, min_A, max_A, min_Intense, max_Intense));
-        oImage2 = oImage;
+        // mUpDownChangeROI(zoomMat, min_A, max_A, min_Intense, max_Intense);
+        displayImage(mUpDownChangeROI(zoomMat, min_A, max_A, min_Intense, max_Intense));
+        ///   displayImage(mUpDownChangeROI(oImage, min_A, max_A, min_Intense, max_Intense));
+        ///   oImage2 = oImage;
     }
 
     public void downUpChange(View view) {
@@ -1276,12 +1420,23 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void changeToCanny(View view) {
-        displayImage(mChangeToCanny(oImage, oImage2, thres_1, thres_2));
+
+        if (m % 2 != 0) {
+            view3.setVisibility(View.VISIBLE);
+            m++;
+        } else {
+            view3.setVisibility(View.INVISIBLE);
+            m++;
+        }
+        // displayImage(mChangeToCanny(oImage, oImage2, thres_1, thres_2));
     }
 
-    public void getContour(View view){
-     // Mat m =   mUpDownChangeROI(oImage, min_A, max_A, min_Intense, max_Intense);
-        displayImage(ContourImage.getMainContourFromROI(oImage,oImage2));
+    public void getContour(View view) {
+        // Mat m =   mUpDownChangeROI(oImage, min_A, max_A, min_Intense, max_Intense);
+        // after this is required code
+        displayImage(ContourImage.getMainContourFromROI(oImage, oImage2));
+
+
     }
 
 

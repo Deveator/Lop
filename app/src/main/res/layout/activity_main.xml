@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:fillViewport="false">
 
-    <android.support.v7.widget.LinearLayoutCompat
+    <androidx.appcompat.widget.LinearLayoutCompat
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
@@ -16,10 +16,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <ImageView
+            <com.example.andrey.lop.CustomView.MyImageView
                 android:id="@+id/imageV"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:adjustViewBounds="true"
+                 />
 
             <com.example.andrey.lop.CustomView.DrawRect
                 android:id="@+id/imageV5"
@@ -94,8 +96,8 @@
                 android:id="@+id/tW10"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textStyle="bold"
-                android:layout_weight="1" />
+                android:layout_weight="1"
+                android:textStyle="bold" />
 
             <Button
                 android:id="@+id/button24"
@@ -128,8 +130,8 @@
                 android:id="@+id/tW12"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textStyle="bold"
-                android:layout_weight="1" />
+                android:layout_weight="1"
+                android:textStyle="bold" />
 
             <Button
                 android:id="@+id/button26"
@@ -204,8 +206,8 @@
                 android:id="@+id/tW4"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textStyle="bold"
-                android:layout_weight="1" />
+                android:layout_weight="1"
+                android:textStyle="bold" />
 
             <Button
                 android:id="@+id/button19"
@@ -247,8 +249,8 @@
                 android:id="@+id/tW6"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textStyle="bold"
-                android:layout_weight="1" />
+                android:layout_weight="1"
+                android:textStyle="bold" />
 
             <Button
                 android:id="@+id/button13"
@@ -281,8 +283,8 @@
                 android:id="@+id/tW8"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textStyle="bold"
-                android:layout_weight="1" />
+                android:layout_weight="1"
+                android:textStyle="bold" />
 
             <Button
                 android:id="@+id/button21"
@@ -353,21 +355,32 @@
                 android:textAllCaps="false"
                 android:textSize="10sp" />
         </LinearLayout>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="1"
+            android:layout_weight="2"
             android:orientation="horizontal">
 
-        <Button
-            android:id="@+id/button28"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:onClick="getContour"
-            android:text="Contour"
-            android:textAllCaps="false"
-            android:textSize="10sp" />
+            <Button
+                android:id="@+id/button28"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:onClick="getContour"
+                android:text="Contour"
+                android:textAllCaps="false"
+                android:textSize="10sp" />
+
+            <Button
+                android:id="@+id/button29"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:onClick="getZoomedBitmap"
+                android:text="zBtm"
+                android:textAllCaps="false"
+                android:textSize="10sp" />
         </LinearLayout>
-    </android.support.v7.widget.LinearLayoutCompat>
+    </androidx.appcompat.widget.LinearLayoutCompat>
 </ScrollView>

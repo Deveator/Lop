@@ -173,6 +173,10 @@ public class LabClass {
         for (int i = vMinIntense; i < vMaxIntense; i++) {
             all_C_Values.add(i);
         }
+
+        System.out.println(all_A_Values.size());
+        System.out.println(all_B_Values.size());
+        System.out.println(all_C_Values.size());
     }
 
     public static void calculate(Mat mat1) {
@@ -250,8 +254,8 @@ public class LabClass {
 
         checkPreconditions(mat3);
 
-        System.out.println("upDownStage start");
         System.out.println("all_A_Values size: " + all_A_Values.size());
+        System.out.println("upDownStage start");
         System.out.println("all_C_Values size: " + all_C_Values.size());
 
         Imgproc.cvtColor(mat3, mat3, Imgproc.COLOR_BGR2Lab);
