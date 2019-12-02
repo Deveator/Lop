@@ -18,18 +18,5 @@ public class GaussianImage {
         Imgproc.GaussianBlur(img, img, vSize, vSigma);
         Imgproc.cvtColor(img, img, Imgproc.COLOR_GRAY2BGR);
         return img;
-        /*
-        switch (mark){
-            case 0:
-                xSize = ySize = 5;
-                break;
-            case 1:
-                xSize = ySize = 15;
-                break;
-            case 2:
-                xSize = ySize = 25;
-                break;
-        }
-        */
     }
 }

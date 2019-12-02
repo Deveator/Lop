@@ -1,6 +1,5 @@
 package com.example.andrey.lop;
 
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -16,8 +15,6 @@ import androidx.core.view.GestureDetectorCompat;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.GestureDetector;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -26,12 +23,22 @@ import android.widget.Toast;
 
 import com.example.andrey.lop.CustomView.DrawRect;
 import com.example.andrey.lop.CustomView.MyImageView;
+import com.example.andrey.lop.ImageActions.CannyImage;
+import com.example.andrey.lop.ImageActions.ContrastImg;
 import com.example.andrey.lop.ImageActions.ContourImage;
 import com.example.andrey.lop.ImageActions.ErodeImage;
+import com.example.andrey.lop.ImageActions.FaceDetect;
 import com.example.andrey.lop.ImageActions.FromWhiteToBlackBackgrnd;
+import com.example.andrey.lop.ImageActions.GammaImg;
+import com.example.andrey.lop.ImageActions.GaussianImage;
 import com.example.andrey.lop.ImageActions.GrayImage;
 import com.example.andrey.lop.ImageActions.LabClass;
+import com.example.andrey.lop.ImageActions.LabImg;
+import com.example.andrey.lop.ImageActions.MorfOperations;
 import com.example.andrey.lop.ImageActions.OriginalImage;
+import com.example.andrey.lop.ImageActions.ScharrImage;
+import com.example.andrey.lop.ImageActions.ShiTomasiCornerDet;
+import com.example.andrey.lop.ImageActions.SobelImage;
 import com.github.chrisbanes.photoview.PhotoView;
 
 import org.opencv.android.OpenCVLoader;
@@ -39,7 +46,6 @@ import org.opencv.android.Utils;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.Point;
-import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
@@ -49,10 +55,10 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
-import static com.example.andrey.lop.ChangeValues.mChangeToCanny;
 import static com.example.andrey.lop.ChangeValues.mDownUpChangeROI;
 import static com.example.andrey.lop.ChangeValues.mLeftRightChangeROI;
 import static com.example.andrey.lop.ChangeValues.mRightLeftChangeROI;
@@ -65,18 +71,19 @@ import static com.example.andrey.lop.CustomView.DrawRect.yGreen;
 import static com.example.andrey.lop.CustomView.DrawRect.yOrg;
 import static com.example.andrey.lop.CustomView.DrawRect.yRed;
 import static com.example.andrey.lop.CustomView.DrawRect.yYell;
+import static com.example.andrey.lop.CustomView.MyImageView.doubleZoomedImage;
 import static com.example.andrey.lop.ImageActions.FindContourImage.xCorC;
 import static com.example.andrey.lop.ImageActions.FindContourImage.yCorC;
 import static com.example.andrey.lop.ImageActions.LabClass.all_A_Values;
 import static com.example.andrey.lop.ImageActions.LabClass.all_B_Values;
 import static com.example.andrey.lop.ImageActions.LabClass.all_C_Values;
 import static com.example.andrey.lop.ImageActions.LabClass.checkPreconditions;
-import static com.example.andrey.lop.ImageActions.LabClass.maxIntense;
-import static com.example.andrey.lop.ImageActions.LabClass.minIntense;
-import static com.example.andrey.lop.ImageActions.LabClass.rMax;
-import static com.example.andrey.lop.ImageActions.LabClass.rMin;
 import static com.example.andrey.lop.ImageActions.LabClass.x_Cor;
 import static com.example.andrey.lop.ImageActions.LabClass.y_Cor;
+import static com.example.andrey.lop.ImageActions.LabImg.diffXValues;
+//import static com.example.andrey.lop.ImageActions.LabImg.diffXValues_All;
+import static com.example.andrey.lop.ImageActions.LabImg.diffYValues;
+//import static com.example.andrey.lop.ImageActions.LabImg.diffYValues_All;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -118,7 +125,8 @@ public class MainActivity extends AppCompatActivity {
     static int m = 3;
     public static int screenWidth, idealWidth, idealHeight, originalHeight, originalWidth;
     public static int thres_1 = 100, thres_2 = 200;
-    Mat oImage, oImage2, _oImage, _oImage2, zoomMat, helpImg, houghCirculeImage, greyImage, greyImage2, cannyImage, gaussianImage, filter2DImage_2, filter2DImage, preImg, preImg_2, anPreImg, labImg;
+    Mat oImage, oImage2, _oImage, _oImage2, zoomMat, helpImg, houghCirculeImage, greyImage, greyImage2, cannyImage, gaussianImage,
+            filter2DImage_2, filter2DImage, preImg, preImg_2, labImg, dilateImage, erodeImage;
     int tX, tY;
     double Dx1, Dx2, Dy1, Dy2;
     int d;
@@ -130,6 +138,9 @@ public class MainActivity extends AppCompatActivity {
     View view3;
     MyImageView iV;
     GestureDetectorCompat mGestureDetector;
+    public static Mat oImage3, anPreImg;
+    public static int doubleTapCount = 3;
+    // public Mat matImgDst = new Mat();
 
     //  Mat sampledImg = new Mat();
 
@@ -166,6 +177,12 @@ public class MainActivity extends AppCompatActivity {
         iV = findViewById(R.id.imageV);
         view3 = findViewById(R.id.imageV5);
 
+        int y = 78;
+        int u = 99;
+        String combo = y + "." + u;
+        double t = Double.valueOf(combo);
+        System.out.println(t);
+
 
     }
 
@@ -195,10 +212,21 @@ public class MainActivity extends AppCompatActivity {
             screenWidth = displayMetrics.widthPixels;
 
             oImage = OriginalImage.getRequiredSizeImage(path);
+            /// matImgDst = oImage;
+
+            // oImage3 is main image
+            oImage3 = OriginalImage.GetResizedImage(path);
             // OriginalImage.calculateRequiredSize(path);
             // adopt image to screen size
             //  oImage = OriginalImage.GetAdoptedImage(path);
-            oImage2 = OriginalImage.GetAdoptedImage(path);
+            // oImage2 = OriginalImage.GetAdoptedImage(path);
+
+            //   anPreImg = ErodeImage.getErodeImage(oImage,3,3,-1,-1);
+            //dilateImage = DilateImage.getDilateImage(oImage);
+            // erodeImage = ErodeImage.getErodeImage(oImage,3,3,-1,-1);
+            // oImage = TwoD_image.GetTwoD_Image(oImage);
+
+            // anPreImg = TwoD_image.GetTwoD_Image(oImage);
 /*
             Point centerHandR = new Point(230.0, 875.0);
             Imgproc.ellipse(oImage, centerHandR, new Size(65, 65), 0, 0, 360,
@@ -244,9 +272,9 @@ public class MainActivity extends AppCompatActivity {
             //  filter2DImage_2 = TwoD_image.GetTwoD_Image_2(oImage);
             //  CascadeClassifier faceCascade = new CascadeClassifier();
             //   CascadeClassifier eyesCascade = new CascadeClassifier();
-/*
+
             try {
-                InputStream is = getResources().openRawResource(R.raw.haarcascade_frontalface_alt);
+                InputStream is = getResources().openRawResource(R.raw.haarcascade_lowerbody);
 
                 File cascadeDir = getDir("cascade", Context.MODE_PRIVATE);
 
@@ -276,7 +304,7 @@ public class MainActivity extends AppCompatActivity {
                 Log.e("OpenCVActivity", "Error loading cascade", e);
             }
 
-*/
+
             // System.out.println(path);
             // faceCascade.load(path);
             //   eyesCascade.load(path);
@@ -328,7 +356,28 @@ public class MainActivity extends AppCompatActivity {
 */
                     view3.setVisibility(View.INVISIBLE);
 
-                    displayImage(oImage);
+                    //    oImage3 = GammaImg.getGammaImg(oImage3,0.5);
+                    //  Imgproc.blur(oImage3,oImage3,new Size(3,3));
+                    //Imgproc.blur(oImage3,oImage3,new Size(3,3));
+                    //  oImage3 = ContrastImg.getContrastImg(oImage3, 1.7, 0);
+                    // oImage3 = MorfOperations.getMorfGradientImg(oImage3, 7, 7, 3, 3);
+                    //   oImage3 = ContrastImg.getContrastImg(oImage3, 1.7, -20);
+                    // Imgproc.blur(oImage3,oImage3,new Size(3,3));
+                    // oImage3 = MorfOperations.getMorfOpenImg(oImage3, 7, 7, 3, 3);
+
+
+                    //  Imgproc.cvtColor(oImage3, oImage3, Imgproc.COLOR_BGR2Lab);
+                    //  oImage3 = ContrastImg.getContrastImg(oImage3, 1.7, -20);
+                    //  oImage3 = CannyImage.GetCannyImage(oImage3,50,200);
+                    //   oImage3 = MorfOperations.getMorfOpenImg(oImage3, 7, 7, 3, 3);
+                    //  oImage3 = TwoD_image.GetTwoD_Image(oImage3);
+
+                    // main idea
+                    // oImage3 = ErodeImage.getErodeImage(oImage3, 7,7,3,3);
+                    displayImage(oImage3);
+                    LabImg.getClustersFromLabImg(oImage3);
+                    /// LabImg.check(oImage3);
+                    //  displayImage(matImgDst);
 
 
                     ///   LabClass.leftRightStage(oImage);
@@ -341,23 +390,13 @@ public class MainActivity extends AppCompatActivity {
 
                     // preImg = changeColor(preImg);
 
-
-                    ///anPreImg = ErodeImage.getErodeImage(preImg);
-
                     /// helpImg = ContourImage.getMainContourImage(anPreImg);
 
                     break;
                 case 1:
                     Mat sMat = oImage.submat(200, 300, 0, 100);
-
                     Imgproc.blur(sMat, sMat, new Size(3, 3));
-
                     displayImage(setBlack(GrayImage.GetGrayImage(sMat)));
-                    //  getAverage(sMat);
-                    // displayImage(FindContourImage.getContourImg(sMat));
-                    //  displayImage(sMat);
-                    //  displayImage(FaceDetect.getFaceDetect(oImage, getCascadeClassifier(R.raw.haarcascade_frontalface_alt)));
-                    //   didIt(filter2DImage_2);
                     break;
                 case 2:
                     Mat sMat2 = oImage.submat(200, 300, 101, 290);
@@ -365,19 +404,17 @@ public class MainActivity extends AppCompatActivity {
                     Imgproc.blur(sMat2, sMat2, new Size(3, 3));
 
                     displayImage(setBlack2(GrayImage.GetGrayImage(sMat2)));
-                    //  displayImage(FindContourImage.getContourImg(sMat2));
                     break;
                 case 3:
                     Mat sMat3 = oImage.submat(100, 300, 291, 389);
                     displayImage(FromWhiteToBlackBackgrnd.getFromWhiteToBlackBackgrnd(sMat3));
-                    //  displayImage(FindContourImage.getContourImg(sMat3));
                     break;
-
             }
             // displayImage(AffineImage.getAffinedImage(oImage));
 
         }
     }
+
 
     public static Mat changeColor(Mat inputImg) {
 
@@ -393,7 +430,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public static Mat changeColorFromROI(Mat inputImg) {
-
 
         for (int i = 0; i < x_Cor.size(); i++) {
             double[] g = {255.0, 255.0, 255.0};
@@ -430,7 +466,6 @@ public class MainActivity extends AppCompatActivity {
         }
         return my;
     }
-
 
     public CascadeClassifier getCascadeClassifier(int resource) {
         try {
@@ -490,45 +525,6 @@ public class MainActivity extends AppCompatActivity {
             System.out.println(ft2[i]);
 
         }
-
-        /*
-
-        int count = 0;
-        double av = 0.0;
-        for (int row = 0; row < 100; row++) {
-
-            for (int col = 0; col < 100; col++) {
-
-                count++;
-
-                double[] ft1 = matImg.get(row, col);
-
-                double bf1 = ft1[0];
-
-                int u = (int) bf1;
-
-                av = av + bf1;
-
-                System.out.print(u + ",");
-
-                //   infoTw.append(bf1 + " , ");
-            }
-            System.out.println("\n");
-            // System.out.println("--------" + count + "-----------");
-            // infoTw.append("\n");
-        }
-
-*/
-        // double[] ft2 = matImg.get(50, 0);
-        //  double Lbf2 = ft2[0];
-        //  double[] ft3 = matImg.get(50, 75);
-        // double Rbf2 = ft3[0];
-        //  System.out.println("COUNT = " + count);
-        //  System.out.println("AVERAGE = " + av / count);
-        //  System.out.println("LEFT = " + Lbf2);
-        //  System.out.println("RIGHT = " + Rbf2);
-
-
     }
 
     public static Mat setBlack(Mat matImg) {
@@ -691,7 +687,6 @@ public class MainActivity extends AppCompatActivity {
         }
         // mark++;
     }
-
 
     private double calculateSubSimpleSize(Mat src, int mobile_width, int mobile_height) {
 
@@ -919,7 +914,6 @@ public class MainActivity extends AppCompatActivity {
         System.out.println("y_full " + full_y_ROIcoord.size());
     }
 
-
     public void innerChng(View view) {
 
 
@@ -1143,7 +1137,9 @@ public class MainActivity extends AppCompatActivity {
 
     public void getZoomedBitmap(View view) {
 
+        displayImage(FaceDetect.getFaceDetect(oImage3, cascadeClassifier));
 
+/*
         createZoomedBitmap();
 
         // START creating directory for images
@@ -1173,6 +1169,7 @@ public class MainActivity extends AppCompatActivity {
         }
         zoomMat = new Mat();
         zoomMat = OriginalImage.GetImage(zoomedImgPath);
+        */
         //Utils.bitmapToMat(zoomedBitmap, zoomMat);
 
 
@@ -1434,9 +1431,102 @@ public class MainActivity extends AppCompatActivity {
     public void getContour(View view) {
         // Mat m =   mUpDownChangeROI(oImage, min_A, max_A, min_Intense, max_Intense);
         // after this is required code
-        displayImage(ContourImage.getMainContourFromROI(oImage, oImage2));
+        //   displayImage(ContourImage._2getMainContourFromROI(doubleZoomedImage, doubleZoomedImage));
+        /// ContourImage.getLabValues(oImage3);
+        //  ContourImage._2getMainContourFromROI(oImage3, oImage3);
+        double[] rVal = {255.0, 0.0, 0.0, 0.0, 0.0, 255.0, 255.0, 170.0, 139.0, 255.0};
+        double[] gVal = {0.0, 0.0, 255.0, 136.0, 0.0, 255.0, 128.0, 255.0, 0.0, 128.0};
+        double[] bVal = {0.0, 0.0, 0.0, 204.0, 153.0, 0.0, 128.0, 153.0, 0.0, 0.0};
+        //BELOW CODE FOR RECOLOR CONTOURS
+
+/*
+        for (int m = 0; m < diffYValues_All.size(); m++) {
+            ArrayList<Integer> XValues = diffXValues_All.get(m);
+            ArrayList<Integer> YValues = diffYValues_All.get(m);
+            for (int i = 0; i < XValues.size(); i++) {
+                double[] dVal = {rVal[m], gVal[m], bVal[m]};
+                oImage3.put(YValues.get(i), XValues.get(i), dVal);
+            }
+        }
+*/
+        displayImage(oImage3);
+
+    }
+
+    public ArrayList<ArrayList> sortDesc(ArrayList<ArrayList> _aL) {
+
+        //copy to help
+        ArrayList<ArrayList> allArraysCopy = new ArrayList<ArrayList>();
+        for (int i = 0; i < _aL.size(); i++) {
+            allArraysCopy.add((ArrayList) _aL.get(i).clone());
+        }
+        // System.out.println(allArraysCopy.get(0).size());
+        // System.out.println(allArraysCopy.get(1).size());
+        // System.out.println(allArraysCopy.get(2).size());
+        // System.out.println(allArraysCopy.get(3).size());
+        // System.out.println("++++++++++++++++");
+
+        ArrayList<Integer> arrayListSize = new ArrayList<>();
+        for (int i = 0; i < _aL.size(); i++) {
+            arrayListSize.add(_aL.get(i).size());
+        }
+        Collections.sort(arrayListSize);
+        Collections.reverse(arrayListSize);
+
+        //   for (int i = 0; i < arrayListSize.size(); i++) {
+        //       System.out.println(i + " - " + arrayListSize.get(i));
+        //   }
+
+        ArrayList<Integer> aList2 = new ArrayList<Integer>();
+
+        for (int y = 0; y < allArraysCopy.size(); y++) {
+            for (int j = 0; j < allArraysCopy.size(); j++) {
+                if ((arrayListSize.get(y) != 0) && (arrayListSize.get(y) == allArraysCopy.get(j).size())) {
+                    aList2.add(j);
+                    allArraysCopy.get(j).clear();
+                    break;
+                }
+            }
+        }
+        //   System.out.println(_aL.get(0).size());
+        //   for (int i = 0; i < _aL.get(0).size(); i++) {
+        //       System.out.println(" - " + _aL.get(0).get(i));
+        //   }
+
+        // sorted array with different indexes
+        ArrayList<ArrayList> aL_2 = new ArrayList<ArrayList>();
+
+        for (int i = 0; i < aList2.size(); i++) {
+            aL_2.add(_aL.get(aList2.get(i)));
+        }
+/*
+        System.out.println(aL_2.get(0).size());
+        for (int i = 0; i < aL_2.get(0).size(); i++) {
+            System.out.println(" - " + aL_2.get(0).get(i));
+        }
+        System.out.println("++++++++++++++++");
+        System.out.println(aL_2.get(1).size());
+        for (int i = 0; i < aL_2.get(1).size(); i++) {
+            System.out.println(" - " + aL_2.get(1).get(i));
+        }
+        System.out.println("++++++++++++++++");
+        System.out.println(aL_2.get(2).size());
+        for (int i = 0; i < aL_2.get(2).size(); i++) {
+            System.out.println(" - " + aL_2.get(2).get(i));
+        }
+        System.out.println("++++++++++++++++");
+        System.out.println(aL_2.get(3).size());
+        for (int i = 0; i < aL_2.get(3).size(); i++) {
+            System.out.println(" - " + aL_2.get(3).get(i));
+        }
+*/
+        return aL_2;
+    }
 
 
+    public void extraContour(View view) {
+
+        displayImage(ContourImage.getExtraContourFromROI(doubleZoomedImage, doubleZoomedImage));
     }
 
 

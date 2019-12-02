@@ -415,6 +415,12 @@ public class LabClass {
         System.out.println("x_Cor size: " + x_Cor.size());
     }
 
+    public static void getClustersFromHsv(Mat mat){
+
+
+
+    }
+
 
     public static void rightLeftStage(Mat mat3) {
         checkPreconditions(mat3);

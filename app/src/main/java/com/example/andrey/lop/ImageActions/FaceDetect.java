@@ -36,25 +36,25 @@ public class FaceDetect {
 
         List<Rect> listOfFaces = faces.toList();
 
-        System.out.println(listOfFaces.size());
-        System.out.println(listOfFaces.get(0));
+        System.out.println("Size" + listOfFaces.size());
+        System.out.println("the " + listOfFaces.get(0));
 
         for (Rect face : listOfFaces) {
-            ///  Point center = new Point(face.x + face.width / 2, face.y + face.height / 2);
-            ///  Imgproc.ellipse(img, center, new Size(face.width / 2, face.height / 2), 0, 0, 360,
-            ///          new Scalar(255, 0, 255));
+              Point center = new Point(face.x + face.width / 2, face.y + face.height / 2);
+              Imgproc.ellipse(img, center, new Size(face.width / 2, face.height / 2), 0, 0, 360,
+                      new Scalar(0, 0, 0));
 
-            ///  Imgproc.rectangle(img, new Point(face.x, face.y), new Point(face.x + face.width, face.y + face.height), new Scalar(155, 0, 240), 3);
+              Imgproc.rectangle(img, new Point(face.x, face.y), new Point(face.x + face.width, face.y + face.height), new Scalar(0, 0, 0), 3);
 
-            Mat faceROI = mImg.submat(face);
-
+        //    Mat faceROI = mImg.submat(face);
+/*
             for (int i = 0; i < 121; i++) {
                 for (int y = 0; y < 121; y++) {
                     double ft[] = faceROI.get(i, y);
                     img.put(98 + i, 44 + y, ft[0], ft[0], ft[0]);
                 }
             }
-
+*/
 /*
             MatOfRect eyes = new MatOfRect();
             eC.detectMultiScale(faceROI, eyes);

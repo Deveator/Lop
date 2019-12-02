@@ -14,15 +14,15 @@ public class DilateImage {
         Mat img = new Mat();
         // Size of the structuring element
         Size kSize = new Size();
-        kSize.height = 11;
-        kSize.width = 11;
+        kSize.height = 5;
+        kSize.width = 5;
         //Anchor position within the element
         // The default value (−1,−1) means that the anchor is at the center.
         // Note that only the shape of a cross-shaped element depends on the anchor position.
         // In other cases the anchor just regulates how much the result of the morphological operation is shifted
         Point kPoint = new Point();
-        kPoint.x = 5;
-        kPoint.y = 5;
+        kPoint.x = 2;
+        kPoint.y = 2;
         // Returns a structuring element of the specified size and shape for morphological operations
         // MORPH_RECT - 	Element shape
         Mat kMat = Imgproc.getStructuringElement(MORPH_RECT, kSize, kPoint);

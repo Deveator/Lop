@@ -151,8 +151,6 @@ public class DrawRect extends View {
             System.out.println("Yellow " + xYell + "::" + yYell);
             System.out.println("Green " + xGreen + "::" + yGreen);
         }
-
-
     }
 
     // the method that draws the balls

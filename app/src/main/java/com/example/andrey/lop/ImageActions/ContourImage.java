@@ -14,12 +14,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import static com.example.andrey.lop.CustomView.DrawRect.xGreen;
 import static com.example.andrey.lop.CustomView.DrawRect.xOrg;
 import static com.example.andrey.lop.CustomView.DrawRect.xRed;
 import static com.example.andrey.lop.CustomView.DrawRect.xYell;
 import static com.example.andrey.lop.CustomView.DrawRect.yGreen;
+import static com.example.andrey.lop.CustomView.DrawRect.yOrg;
 import static com.example.andrey.lop.CustomView.DrawRect.yRed;
 import static com.example.andrey.lop.CustomView.DrawRect.yYell;
+import static com.example.andrey.lop.CustomView.MyImageView.xR2;
+import static com.example.andrey.lop.CustomView.MyImageView.xRR;
+import static com.example.andrey.lop.CustomView.MyImageView.yR2;
 import static com.example.andrey.lop.MainActivity.blueVal;
 import static com.example.andrey.lop.MainActivity.greenVal;
 import static com.example.andrey.lop.MainActivity.mFullRoiXy;
@@ -32,6 +37,195 @@ public class ContourImage {
     public static ArrayList<int[]> subMatFullCrdntsX_Y = new ArrayList<>();
     private static Random rnd = new Random(12345);
     private static final boolean subMatIsDone = false;
+    private static boolean noContours = false;
+
+    public static void getLabValues(Mat mImg){
+
+        DrawRect.getCoord();
+
+        Mat sMat = mImg.submat(yRed, yGreen, xRed, xOrg);
+
+     //   for (int x = 0; x < sMat.cols(); x++) {
+        //      //      for (int y = 0; y < sMat.rows(); y++) {
+        //                double[] ft2 = sMat.get(50, 50);
+        //
+        //        System.out.println("--------");
+        //        System.out.println(sMat.cols());
+        //        System.out.println(sMat.rows());
+        //        System.out.println("--------");
+        //
+        //                System.out.println(ft2[0]);
+        //        System.out.println(ft2[1]);
+        //        System.out.println(ft2[2]);
+        //             //   if (ft2[0] == blueVal && ft2[1] == greenVal && ft2[2] == redVal) {
+        //          //          int[] ft4 = {y, x};
+        //        //            contourCoordinatesX_Y.add(ft4);
+        //           //     }
+        //         //   }
+
+
+
+
+    }
+
+    public static Mat getExtraContourFromROI(Mat mImg, Mat mImg2) {
+
+        DrawRect.getCoord();
+
+        GammaImg.getGammaImg(mImg2, 0.5);
+
+        Mat sMat = mImg2.submat(yRed, yGreen, xRed, xOrg);
+
+        Mat resultImg = new Mat();
+
+        Imgproc.cvtColor(sMat, resultImg, Imgproc.COLOR_BGR2GRAY);
+
+        Imgproc.Canny(resultImg, resultImg, 100, 100 * 2);
+
+        Mat hierarchy = new Mat();
+
+        Imgproc.findContours(resultImg, contoursM, hierarchy, Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_NONE);
+
+        System.out.println("Contours " + contoursM.size());
+
+        Mat drawing = Mat.zeros(resultImg.size(), CvType.CV_8UC3);
+
+        for (int i = 0; i < contoursM.size(); i++) {
+
+            Scalar color = new Scalar(rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256));
+            Imgproc.drawContours(drawing, contoursM, i, color, 3, Core.LINE_8, hierarchy, 0, new Point());
+
+            if ((contoursM.size() != 0) && (i == (contoursM.size() - 1))) {
+                blueVal = color.val[0];
+                greenVal = color.val[1];
+                redVal = color.val[2];
+            }
+        }
+
+        if (contoursM.size() != 0) {
+            for (int x = 0; x < drawing.cols(); x++) {
+                for (int y = 0; y < drawing.rows(); y++) {
+                    double[] ft2 = drawing.get(y, x);
+                    if (ft2[0] == blueVal && ft2[1] == greenVal && ft2[2] == redVal) {
+                        int[] ft4 = {y, x};
+                        contourCoordinatesX_Y.add(ft4);
+                    }
+                }
+            }
+
+            double[] ft3 = {0.0, 0.0, 0.0};
+            for (int i = 0; i < contourCoordinatesX_Y.size(); i++) {
+                int[] ft5 = contourCoordinatesX_Y.get(i);
+                int y = ft5[0];
+                int x = ft5[1];
+                mImg.put(y + yRed, x + xRed, ft3);
+            }
+        }
+
+        if (contoursM.size() == 0) {
+            noContours = true;
+        }
+
+        contourCoordinatesX_Y.clear();
+        contoursM.clear();
+        System.out.println("Stage extraContour comleted ");
+        return mImg;
+    }
+
+    public static Mat _2getMainContourFromROI(Mat mImg, Mat mImg2) {
+
+        DrawRect.getCoord();
+
+        if (noContours) {
+
+        }
+        Mat sMat = mImg2.submat(yRed, yGreen, xRed, xOrg);
+
+        Mat resultImg = new Mat();
+
+        Imgproc.cvtColor(sMat, resultImg, Imgproc.COLOR_BGR2GRAY);
+
+        Imgproc.Canny(resultImg, resultImg, 100, 100 * 2);
+
+        Mat hierarchy = new Mat();
+
+        Imgproc.findContours(resultImg, contoursM, hierarchy, Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_NONE);
+
+        System.out.println("Contours " + contoursM.size());
+
+        Mat drawing = Mat.zeros(resultImg.size(), CvType.CV_8UC3);
+
+        for (int i = 0; i < contoursM.size(); i++) {
+
+            Scalar color = new Scalar(rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256));
+            Imgproc.drawContours(drawing, contoursM, i, color, -1, Core.LINE_8, hierarchy, 0, new Point());
+
+            blueVal = color.val[0];
+            greenVal = color.val[1];
+            redVal = color.val[2];
+
+            for (int x = 0; x < drawing.cols(); x++) {
+                for (int y = 0; y < drawing.rows(); y++) {
+                    double[] ft2 = drawing.get(y, x);
+                    if (ft2[0] == blueVal && ft2[1] == greenVal && ft2[2] == redVal) {
+                        int[] ft4 = {y, x};
+                        contourCoordinatesX_Y.add(ft4);
+                    }
+                }
+            }
+            double[] ft3 = {blueVal, greenVal, redVal};
+
+            for (int i1 = 0; i1 < contourCoordinatesX_Y.size(); i1++) {
+                int[] ft5 = contourCoordinatesX_Y.get(i1);
+                int y = ft5[0];
+                int x = ft5[1];
+                mImg.put(y + yRed, x + xRed, ft3);
+            }
+
+            System.out.println("Contour length - " + contourCoordinatesX_Y.size());
+
+            contourCoordinatesX_Y.clear();
+
+            // code for finding value of the most long contour
+           /*
+            if ((contoursM.size()!=0) && (i == (contoursM.size() - 1))) {
+                blueVal = color.val[0];
+                greenVal = color.val[1];
+                redVal = color.val[2];
+            }
+            */
+        }
+/*
+        if (contoursM.size() != 0) {
+            for (int x = 0; x < drawing.cols(); x++) {
+                for (int y = 0; y < drawing.rows(); y++) {
+                    double[] ft2 = drawing.get(y, x);
+                    if (ft2[0] == blueVal && ft2[1] == greenVal && ft2[2] == redVal) {
+                        int[] ft4 = {y, x};
+                        contourCoordinatesX_Y.add(ft4);
+                    }
+                }
+            }
+
+            double[] ft3 = {0.0, 0.0, 0.0};
+            for (int i = 0; i < contourCoordinatesX_Y.size(); i++) {
+                int[] ft5 = contourCoordinatesX_Y.get(i);
+                int y = ft5[0];
+                int x = ft5[1];
+                mImg.put(y + yRed, x + xRed, ft3);
+            }
+        }
+        */
+
+        if (contoursM.size() == 0) {
+            noContours = true;
+        }
+
+        contourCoordinatesX_Y.clear();
+        contoursM.clear();
+        System.out.println("Stage contour completed");
+        return mImg;
+    }
 
     public static Mat getMainContourFromROI(Mat mImg, Mat mImg2) {
 
@@ -103,11 +297,9 @@ public class ContourImage {
         int y = vCoor[1];
         int xC;
         int yC;
-        for(int i = 0; i<aL.size(); i++){
-
+        for (int i = 0; i < aL.size(); i++) {
 
         }
-
     }
 
 

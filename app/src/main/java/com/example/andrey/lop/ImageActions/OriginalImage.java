@@ -34,7 +34,7 @@ public class OriginalImage {
     public static Mat GetResizedImage(String path) {
         Mat orImage = new Mat();
         Mat originImg = Imgcodecs.imread(path);// image is BGR format , try to get format
-        Size sz = new Size(1500, 2000);
+        Size sz = new Size(750, 1000);
 
         System.out.println(originImg.size());
 
@@ -148,11 +148,64 @@ public class OriginalImage {
     }
 
 
-
     // method to get Mat from path of zoomed image
     public static Mat GetImage(String path) {
         Mat originImg = Imgcodecs.imread(path);
         Imgproc.cvtColor(originImg, originImg, Imgproc.COLOR_BGR2RGB);
         return originImg;
+    }
+
+    public static int getXforRect(int x, int imageWidth, int step) {
+        int rectX = 0;
+        int helpX;
+        switch (step) {
+            case 1:
+                rectX = x - (imageWidth / 4);
+                if ((rectX + (imageWidth / 2)) > imageWidth) {
+                    helpX = (rectX + (imageWidth / 2)) - imageWidth;
+                    rectX = rectX - helpX;
+                } else if (rectX < 0) {
+                    rectX = 0;
+                }
+                break;
+            case 2:
+                imageWidth = imageWidth / 2;
+                rectX = x - (imageWidth / 4);
+                if ((rectX + (imageWidth / 2)) > imageWidth) {
+                    helpX = (rectX + (imageWidth / 2)) - imageWidth;
+                    rectX = rectX - helpX;
+                } else if (rectX < 0) {
+                    rectX = 0;
+                }
+                break;
+        }
+        return rectX;
+    }
+
+    public static int getYforRect(int y, int imageHeight, int step) {
+        int rectY = 0;
+        int helpY;
+        switch (step) {
+            case 1:
+                rectY = y - (imageHeight / 4);
+                if ((rectY + (imageHeight / 2)) > imageHeight) {
+                    helpY = (rectY + (imageHeight / 2)) - imageHeight;
+                    rectY = rectY - helpY;
+                } else if (rectY < 0) {
+                    rectY = 0;
+                }
+                break;
+            case 2:
+                imageHeight = imageHeight / 2;
+                rectY = y - (imageHeight / 4);
+                if ((rectY + (imageHeight / 2)) > imageHeight) {
+                    helpY = (rectY + (imageHeight / 2)) - imageHeight;
+                    rectY = rectY - helpY;
+                } else if (rectY < 0) {
+                    rectY = 0;
+                }
+                break;
+        }
+        return rectY;
     }
 }

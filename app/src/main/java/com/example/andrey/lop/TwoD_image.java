@@ -27,7 +27,7 @@ public class TwoD_image {
         Mat img = new Mat();
         Mat kern = new Mat(3, 3, CvType.CV_8S);
         int row = 0, col = 0;
-        kern.put(row, col, 0, -1, 0, -1, 5, -1, 0, -1, 0);// '0, -1, 0, -1, 5, -1, 0, -1, 0' is dataSet to get 2D image
+        kern.put(row, col, -1, -1, -1, -1, 8, -1, 1, -1, -1);// '0, -1, 0, -1, 5, -1, 0, -1, 0' is dataSet to get 2D image
        // Imgproc.cvtColor(mImg, mImg, Imgproc.COLOR_BGR2GRAY);
         Imgproc.filter2D(mImg, img, mImg.depth(), kern);
         //  filter2DImage = img;
