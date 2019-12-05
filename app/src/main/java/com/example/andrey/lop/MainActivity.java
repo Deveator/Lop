@@ -80,6 +80,8 @@ import static com.example.andrey.lop.ImageActions.LabClass.all_C_Values;
 import static com.example.andrey.lop.ImageActions.LabClass.checkPreconditions;
 import static com.example.andrey.lop.ImageActions.LabClass.x_Cor;
 import static com.example.andrey.lop.ImageActions.LabClass.y_Cor;
+import static com.example.andrey.lop.ImageActions.LabImg.all_diffXValues;
+import static com.example.andrey.lop.ImageActions.LabImg.all_diffYValues;
 import static com.example.andrey.lop.ImageActions.LabImg.diffXValues;
 //import static com.example.andrey.lop.ImageActions.LabImg.diffXValues_All;
 import static com.example.andrey.lop.ImageActions.LabImg.diffYValues;
@@ -1439,17 +1441,42 @@ public class MainActivity extends AppCompatActivity {
         double[] bVal = {0.0, 0.0, 0.0, 204.0, 153.0, 0.0, 128.0, 153.0, 0.0, 0.0};
         //BELOW CODE FOR RECOLOR CONTOURS
 
-/*
-        for (int m = 0; m < diffYValues_All.size(); m++) {
-            ArrayList<Integer> XValues = diffXValues_All.get(m);
-            ArrayList<Integer> YValues = diffYValues_All.get(m);
+        ////   for (int i = 0; i < diffXValues.size(); i++) {
+        ////       double[] dVal = {rVal[0], gVal[0], bVal[0]};
+        ////       oImage3.put(diffYValues.get(i), diffXValues.get(i), dVal);
+        ////    }
+
+
+        for (int m = 0; m < all_diffYValues.size(); m++) {
+            ArrayList<Integer> XValues = all_diffXValues.get(m);
+            ArrayList<Integer> YValues = all_diffYValues.get(m);
             for (int i = 0; i < XValues.size(); i++) {
                 double[] dVal = {rVal[m], gVal[m], bVal[m]};
                 oImage3.put(YValues.get(i), XValues.get(i), dVal);
             }
         }
-*/
+
         displayImage(oImage3);
+/*
+        for (int i = 0; i < all_diffXValues.get(0).size(); i++) {
+            if ((Integer) all_diffYValues.get(0).get(i) == 500) {
+                System.out.println(all_diffXValues.get(0).get(i) + ":" + all_diffYValues.get(0).get(i));
+            }
+        }
+*/
+
+
+     //  displayImage(oImage3);
+
+        //for (int i = 0; i < 100; i++) {
+        //    double[] vFull = oImage3.get(500, i);
+       //     System.out.println(i + " - " + vFull[0] + ":" + vFull[1] + ":" + vFull[2]);
+            // DCol1.add(vFull[0]);
+            //   DCol2.add(vFull[1]);
+            // DCol3.add(vFull[2]);
+            // double[] dVal = {rVal[m], gVal[m], bVal[m]};
+    //    }
+
 
     }
 
