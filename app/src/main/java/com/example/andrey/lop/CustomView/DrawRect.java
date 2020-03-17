@@ -60,20 +60,20 @@ public class DrawRect extends View {
         point1 = new Point();
 
         point1.x = 250;
-        point1.y = 220;
+        point1.y = 170;
        // point1.x = 50;
       //  point1.y = 20;
 
         point2 = new Point();
-        point2.x = 350;
-        point2.y = 220;
+        point2.x = 300;
+        point2.y = 170;
 
         //point2.x = 150;
        // point2.y = 20;
 
         point3 = new Point();
-        point3.x = 350;
-        point3.y = 320;
+        point3.x = 300;
+        point3.y = 220;
 
        // point3.x = 150;
       //  point3.y = 120;
@@ -81,7 +81,7 @@ public class DrawRect extends View {
         point4 = new Point();
 
         point4.x = 250;
-        point4.y = 320;
+        point4.y = 220;
       //  point4.x = 50;
       //  point4.y = 120;
 

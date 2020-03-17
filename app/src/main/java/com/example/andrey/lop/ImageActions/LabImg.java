@@ -7,6 +7,8 @@ import org.opencv.imgproc.Imgproc;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class LabImg {
 
@@ -17,8 +19,8 @@ public class LabImg {
 
     public static ArrayList<Integer> aValues = new ArrayList<Integer>();
     public static ArrayList<Integer> bValues = new ArrayList<Integer>();
-    public static ArrayList<Double> a_b_Values = new ArrayList<Double>();
-    public static ArrayList<Double> y_x_Values = new ArrayList<Double>();
+    public static ArrayList<String> a_b_Values = new ArrayList<String>();
+    public static ArrayList<String> y_x_Values = new ArrayList<String>();
     public static ArrayList<ArrayList> clusterS_y_x_Values = new ArrayList<ArrayList>();
     public static ArrayList<Double> cluster_y_x_Values = new ArrayList<Double>();
     public static ArrayList<Integer> diffAValues = new ArrayList<Integer>();
@@ -29,7 +31,7 @@ public class LabImg {
     public static ArrayList<ArrayList> all_diffXValues = new ArrayList<ArrayList>();
     public static ArrayList<ArrayList> all_diffYValues = new ArrayList<ArrayList>();
 
-    public static ArrayList<Double> diffrent_a_b_values = new ArrayList<Double>();
+    public static ArrayList<String> diffrent_a_b_values = new ArrayList<String>();
     public static ArrayList<Integer> diffrent_a_b_values_indexes = new ArrayList<Integer>();
 
     public static ArrayList<ArrayList> clusters = new ArrayList<ArrayList>();
@@ -45,7 +47,6 @@ public class LabImg {
     public static void getClustersFromLabImg(Mat mat) {
 
         Mat labMat = new Mat();
-
         Imgproc.cvtColor(mat, labMat, Imgproc.COLOR_BGR2Lab);
 
         for (int x = 0; x < labMat.cols(); x++) {
@@ -54,19 +55,19 @@ public class LabImg {
                 int a = (int) fullLabValue[1];
                 int b = (int) fullLabValue[2];
                 String s = a + "." + b;
-                double d = Double.valueOf(s);
-                a_b_Values.add(d);
+                a_b_Values.add(s);
                 String s1 = y + "." + x;
-                double d1 = Double.valueOf(s1);
-                y_x_Values.add(d1);
+                y_x_Values.add(s1);
             }
         }
 
-        double[] fullLabValue = labMat.get(500, 1);
-        int a = (int) fullLabValue[1];
-        int b = (int) fullLabValue[2];
-        String s = a + "." + b;
-        System.out.println( s);
+        //   double[] fullLabValue = labMat.get(500, 1);
+        //    int a = (int) fullLabValue[1];
+        //    int b = (int) fullLabValue[2];
+        //     String s = a + "." + b;
+        System.out.println(a_b_Values.size());
+        System.out.println(123456);
+        System.out.println(y_x_Values.size());
 
 /*
         for (int x = 0; x < 401; x = x + 10) {
@@ -79,23 +80,28 @@ public class LabImg {
 */
         getDifferentAbValues();
         getAandBarrays();
-        clusterizeA(40);
-        clusterizeB(40);
+        clusterizeA(29);
+        clusterizeB(29);
         sortArray2();
     }
 
     public static void getDifferentAbValues() {
+
+
         int num = 0;
         for (int i = 0; i < a_b_Values.size(); i++) {
-            double s = a_b_Values.get(i);
+            String s = a_b_Values.get(i);
             if (!diffrent_a_b_values.contains(s)) {
                 diffrent_a_b_values.add(s);
                 diffrent_a_b_values_indexes.add(num);
                 num++;
             }
         }
-        /// System.out.println("diffrent_a_b_values - " + diffrent_a_b_values.size());
-        ///  System.out.println("diffrent_a_b_values_indexes - " + diffrent_a_b_values_indexes.size());
+        // System.out.println("diffrent_a_b_values 5 index - " + diffrent_a_b_values.get(499));
+
+
+        // System.out.println("diffrent_a_b_values - " + diffrent_a_b_values.size());
+        //  System.out.println("diffrent_a_b_values_indexes - " + diffrent_a_b_values_indexes.size());
     }
 
     public static void getAandBarrays() {
@@ -105,9 +111,9 @@ public class LabImg {
             diffAValues.add(Integer.valueOf(arrOfStr[0]));
             diffBValues.add(Integer.valueOf(arrOfStr[1]));
         }
-        ///  System.out.println("diffAValues - " + diffAValues.size());
+        //  System.out.println("diffAValues - " + diffAValues.size());
         ///   System.out.println("****************");
-        ///   System.out.println("diffBValues - " + diffBValues.size());
+        ///  System.out.println("diffBValues 499 index - " + diffBValues.get(499));
     }
 
     public static void clusterizeA(int clusterStep) {
@@ -168,7 +174,7 @@ public class LabImg {
         }
         /// System.out.println("clustersB - " + clustersB.size());
         /// System.out.println("clustersB first size - " + clustersB.get(0).size());
-        /// System.out.println("****************");
+        System.out.println("****************");
         ///  System.out.println("clustersBIndex - " + clustersBIndex.size());
         /// System.out.println("clustersBIndex 129 size - " + clustersBIndex.get(129).get(0));
         /// System.out.println("clustersBIndex 129 size - " + clustersBIndex.get(129).size());
@@ -177,27 +183,28 @@ public class LabImg {
         ///  System.out.println("clustersBIndexCopy first size - " + clustersBIndexCopy.get(0).size());
     }
 
-    // get num of specific pixelValue from all image
-    public static void getNumOfSpecificValues() {
+    /*
+        // get num of specific pixelValue from all image
+        public static void getNumOfSpecificValues() {
 
-        ArrayList<Double> al = new ArrayList<Double>();
-        ArrayList<Integer> al1 = clustersBIndex.get(0);
-        int count = 0;
-        for (int k = 0; k < al1.size(); k++) {
-            int ind = al1.get(k);
-            al.add(diffrent_a_b_values.get(ind));
-        }
-
-        System.out.println(al.size());
-
-        for (int i = 0; i < a_b_Values.size(); i++) {
-            if (al.contains(a_b_Values.get(i))) {
-                count++;
+            ArrayList<Double> al = new ArrayList<Double>();
+            ArrayList<Integer> al1 = clustersBIndex.get(0);
+            int count = 0;
+            for (int k = 0; k < al1.size(); k++) {
+                int ind = al1.get(k);
+                al.add(diffrent_a_b_values.get(ind));
             }
-        }
-        System.out.println("Specific values = " + count);
-    }
 
+            System.out.println(al.size());
+
+            for (int i = 0; i < a_b_Values.size(); i++) {
+                if (al.contains(a_b_Values.get(i))) {
+                    count++;
+                }
+            }
+            System.out.println("Specific values = " + count);
+        }
+    */
     //
     public static void sortArray2() {
 
@@ -307,9 +314,10 @@ public class LabImg {
         for (int i = 0; i < aL_2.size(); i++) {
             finalSortedCluster.add(aL_2.get(i));
         }
-        System.out.println(finalSortedCluster.size());
+        System.out.println("finalSortedCluster - " + finalSortedCluster.size());
         System.out.println(finalSortedCluster.get(0).size());
         System.out.println(finalSortedCluster.get(0).get(0));
+       // System.out.println(diffrent_a_b_values.get(122));
 
         reColor();
 
@@ -361,10 +369,10 @@ public class LabImg {
 
     public static void reColor() {
 
-        ArrayList<Double> aL = new ArrayList<>();
+        ArrayList<String> aL = new ArrayList<>();
         ArrayList<ArrayList> aL_All = new ArrayList<>();
-
-        for (int c = 0; c < 1; c++) {
+// changes
+        for (int c = 0; c < finalSortedCluster.size(); c++) {
 
             ArrayList<Integer> help_aL = finalSortedCluster.get(c);
 
@@ -381,17 +389,17 @@ public class LabImg {
 
 
         System.out.println("++++++++++++++++++");
-      //  for (int i = 0; i < 200; i++) {
-      //      System.out.println(i + " - " + aL_All.get(0).get(i));
-            //System.out.println(aL.get(0));
-      //  }
+        //  for (int i = 0; i < 200; i++) {
+        //      System.out.println(i + " - " + aL_All.get(0).get(i));
+        //System.out.println(aL.get(0));
+        //  }
 
-        ArrayList<Double> aL_2 = new ArrayList<>();
+        ArrayList<String> aL_2 = new ArrayList<>();
         //   ArrayList<ArrayList> aL_All_2 = new ArrayList<>();
 
         for (int c = 0; c < aL_All.size(); c++) {
 
-            ArrayList<Double> help_aL = aL_All.get(c);
+            ArrayList<String> help_aL = aL_All.get(c);
 
             for (int i = 0; i < help_aL.size(); i++) {
 
@@ -401,23 +409,31 @@ public class LabImg {
 
                         aL_2.add(y_x_Values.get(q));
 
-                      //  if(help_aL.get(i)== 128.125){
-                       //     System.out.println(y_x_Values.get(q));
-                      //  }
+                        //  if(help_aL.get(i)== 128.125){
+                        //     System.out.println(y_x_Values.get(q));
+                        //  }
                     }
                 }
             }
             clusterS_y_x_Values.add((ArrayList) aL_2.clone());
             aL_2.clear();
         }
-        //   System.out.println(clusterS_y_x_Values.size());
-          // for (int i = 0; i < 200; i++) {
-          //     System.out.println(i + " - " + clusterS_y_x_Values.get(0).get(i));
-         //System.out.println(aL.get(0));
-         //  }
+        int res=0;
+        System.out.println("*********************");
+        System.out.println(clusterS_y_x_Values.size());
+        System.out.println(clusterS_y_x_Values.get(0).size());
+
+        for(int i = 0; i < clusterS_y_x_Values.size(); i++){
+            res = res + clusterS_y_x_Values.get(i).size();
+        }
+        System.out.println("Count of all arrays " + res);
+        // for (int i = 0; i < 200; i++) {
+        //     System.out.println(i + " - " + clusterS_y_x_Values.get(0).get(i));
+        //System.out.println(aL.get(0));
+        //  }
 
 
-        getYandXarrays();
+       getYandXarrays();
 
     }
 
@@ -428,11 +444,11 @@ public class LabImg {
 
         for (int c = 0; c < clusterS_y_x_Values.size(); c++) {
 
-            ArrayList<Double> help_aL = clusterS_y_x_Values.get(c);
+            ArrayList<String> help_aL = clusterS_y_x_Values.get(c);
 
             for (int i = 0; i < help_aL.size(); i++) {
 
-                String r = String.valueOf(help_aL.get(i));
+                String r = help_aL.get(i);
 
                 String[] arrOfStr = r.split("\\.");
 
@@ -501,7 +517,7 @@ public class LabImg {
         System.out.println(maxClusters.get(0).size());
         System.out.println(maxClusters.get(1).size());
     }
-
+/*
     public static void getCoordinatesForDifferentAbValues() {
         String d = "";
         for (int i = 0; i < diffrent_a_b_values.size(); i++) {
@@ -515,6 +531,8 @@ public class LabImg {
             clusters.add(dAL);
         }
     }
+
+    */
 
     public static void fillClusters() {
 

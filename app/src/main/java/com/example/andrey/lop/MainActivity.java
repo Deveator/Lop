@@ -12,6 +12,8 @@ import android.provider.MediaStore;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.GestureDetectorCompat;
 
+import java.util.concurrent.ThreadLocalRandom;
+
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -23,6 +25,7 @@ import android.widget.Toast;
 
 import com.example.andrey.lop.CustomView.DrawRect;
 import com.example.andrey.lop.CustomView.MyImageView;
+import com.example.andrey.lop.ImageActions.BgrComputeImg;
 import com.example.andrey.lop.ImageActions.CannyImage;
 import com.example.andrey.lop.ImageActions.ContrastImg;
 import com.example.andrey.lop.ImageActions.ContourImage;
@@ -35,6 +38,7 @@ import com.example.andrey.lop.ImageActions.GrayImage;
 import com.example.andrey.lop.ImageActions.LabClass;
 import com.example.andrey.lop.ImageActions.LabImg;
 import com.example.andrey.lop.ImageActions.MorfOperations;
+import com.example.andrey.lop.ImageActions.NextLabImg;
 import com.example.andrey.lop.ImageActions.OriginalImage;
 import com.example.andrey.lop.ImageActions.ScharrImage;
 import com.example.andrey.lop.ImageActions.ShiTomasiCornerDet;
@@ -72,14 +76,31 @@ import static com.example.andrey.lop.CustomView.DrawRect.yOrg;
 import static com.example.andrey.lop.CustomView.DrawRect.yRed;
 import static com.example.andrey.lop.CustomView.DrawRect.yYell;
 import static com.example.andrey.lop.CustomView.MyImageView.doubleZoomedImage;
+import static com.example.andrey.lop.ImageActions.ContourImage.contourCoordinatesX_Y_All;
+import static com.example.andrey.lop.ImageActions.ContourImage.getColorLines;
+import static com.example.andrey.lop.ImageActions.ContourImage.getContourLines;
+import static com.example.andrey.lop.ImageActions.ContourImage.getMatFromROI;
+import static com.example.andrey.lop.ImageActions.ContourImage.rgb_string_array;
 import static com.example.andrey.lop.ImageActions.FindContourImage.xCorC;
 import static com.example.andrey.lop.ImageActions.FindContourImage.yCorC;
 import static com.example.andrey.lop.ImageActions.LabClass.all_A_Values;
 import static com.example.andrey.lop.ImageActions.LabClass.all_B_Values;
 import static com.example.andrey.lop.ImageActions.LabClass.all_C_Values;
 import static com.example.andrey.lop.ImageActions.LabClass.checkPreconditions;
+import static com.example.andrey.lop.ImageActions.LabClass.diagonal_1;
+import static com.example.andrey.lop.ImageActions.LabClass.diagonal_2;
+import static com.example.andrey.lop.ImageActions.LabClass.diagonal_3;
+import static com.example.andrey.lop.ImageActions.LabClass.diagonal_4;
+import static com.example.andrey.lop.ImageActions.LabClass.downUp;
+import static com.example.andrey.lop.ImageActions.LabClass.findNumberOfLines;
+import static com.example.andrey.lop.ImageActions.LabClass.leftRight;
+import static com.example.andrey.lop.ImageActions.LabClass.rightLeft;
+import static com.example.andrey.lop.ImageActions.LabClass.showBorderPointsArrays;
+import static com.example.andrey.lop.ImageActions.LabClass.upDown;
 import static com.example.andrey.lop.ImageActions.LabClass.x_Cor;
+import static com.example.andrey.lop.ImageActions.LabClass.x_Cor_ROI;
 import static com.example.andrey.lop.ImageActions.LabClass.y_Cor;
+import static com.example.andrey.lop.ImageActions.LabClass.y_Cor_ROI;
 import static com.example.andrey.lop.ImageActions.LabImg.all_diffXValues;
 import static com.example.andrey.lop.ImageActions.LabImg.all_diffYValues;
 import static com.example.andrey.lop.ImageActions.LabImg.diffXValues;
@@ -96,6 +117,8 @@ public class MainActivity extends AppCompatActivity {
     public static ArrayList<Double> DCol1 = new ArrayList<>();
     public static ArrayList<Double> DCol2 = new ArrayList<>();
     public static ArrayList<Double> DCol3 = new ArrayList<>();
+
+    public static ArrayList<double[]> originalImageColor = new ArrayList<>();
 
     public static ArrayList<Integer> a = new ArrayList<Integer>();
     public static ArrayList<Integer> i = new ArrayList<>();
@@ -115,9 +138,35 @@ public class MainActivity extends AppCompatActivity {
     public static ArrayList<Integer> full_x_ROIcoord = new ArrayList<>();
     public static ArrayList<Integer> full_y_ROIcoord = new ArrayList<>();
 
+    public static ArrayList<ArrayList<ArrayList>> allColors_AL = new ArrayList<ArrayList<ArrayList>>();
+    public static ArrayList<ArrayList> borderPoints_AL = new ArrayList<ArrayList>();
+    public static ArrayList<String> linesDscrptn = new ArrayList<String>();
+    public static ArrayList<String> difrntLinesDscrptn = new ArrayList<String>();
+    public static ArrayList<ArrayList> difrntLines_indexes = new ArrayList<ArrayList>();
+    public static ArrayList<ArrayList> difrntLines_coordinatesY = new ArrayList<ArrayList>();
+    public static ArrayList<ArrayList> difrntLines_coordinatesX = new ArrayList<ArrayList>();
+
+    public static ArrayList<Double> _1_clr = new ArrayList<Double>();
+    public static ArrayList<Double> _2_clr = new ArrayList<Double>();
+    public static ArrayList<Double> _3_clr = new ArrayList<Double>();
+
+    public static ArrayList<Integer> y1 = new ArrayList<Integer>();
+    public static ArrayList<Integer> x1 = new ArrayList<Integer>();
+
+    public static ArrayList<ArrayList> yColorCoor = new ArrayList<ArrayList>();
+    public static ArrayList<ArrayList> xColorCoor = new ArrayList<ArrayList>();
+
+    public static ArrayList<ArrayList> colorDefiningAl = new ArrayList<ArrayList>();
+
+    public static ArrayList<ArrayList> all_colorSquare = new ArrayList<ArrayList>();
+
+    private static Random rnd = new Random(12345);
+
     public static double blueVal, greenVal, redVal;
 
     public static int maxAfromROI, minAfromROI, rMinfromROI, rMaxfromROI, minIntensefromROI, maxIntensefromROI, min_A, max_A, min_Intense, max_Intense;
+    int clicks = 0;
+    int colorBack = 0;
 
     ImageView iV2, iV3, iV4;
     Button bttn, bttn2, bttn3, bttn4, bttn5, bttn6, bttn7, bttn8, bttn9, bttn10, bttn11, bttn12, bttn13, bttn14, bttn24;
@@ -125,13 +174,19 @@ public class MainActivity extends AppCompatActivity {
     static int mark = 0;
     static int mark2 = 0;
     static int m = 3;
+    static int m2 = 3;
+    static int numLines, numColorSections;
+
+    public static int _xFromROI;
+    public static int _yFromROI;
+
     public static int screenWidth, idealWidth, idealHeight, originalHeight, originalWidth;
     public static int thres_1 = 100, thres_2 = 200;
     Mat oImage, oImage2, _oImage, _oImage2, zoomMat, helpImg, houghCirculeImage, greyImage, greyImage2, cannyImage, gaussianImage,
             filter2DImage_2, filter2DImage, preImg, preImg_2, labImg, dilateImage, erodeImage;
     int tX, tY;
     double Dx1, Dx2, Dy1, Dy2;
-    int d;
+    int clickCount = 1;
     Bitmap zoomedBitmap, bitmapS, bitmapS2;
     public static String path;
     public static CascadeClassifier cascadeClassifier;
@@ -141,7 +196,9 @@ public class MainActivity extends AppCompatActivity {
     MyImageView iV;
     GestureDetectorCompat mGestureDetector;
     public static Mat oImage3, anPreImg;
+    public static Mat oImage3ClusterColored, imgROIfromClustered;
     public static int doubleTapCount = 3;
+    double[] oColor;
     // public Mat matImgDst = new Mat();
 
     //  Mat sampledImg = new Mat();
@@ -200,24 +257,16 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == 101 && resultCode == RESULT_OK && data != null) {
-
             Uri imageUri = data.getData();
-
             path = getPath(imageUri);
-
-            // loadImage(path);
-
-            //   _oImage = photoView.setImageURI();
-
             DisplayMetrics displayMetrics = new DisplayMetrics();
             getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
             screenWidth = displayMetrics.widthPixels;
-
             oImage = OriginalImage.getRequiredSizeImage(path);
-            /// matImgDst = oImage;
 
             // oImage3 is main image
             oImage3 = OriginalImage.GetResizedImage(path);
+            oImage3ClusterColored = OriginalImage.GetResizedImage(path);///
             // OriginalImage.calculateRequiredSize(path);
             // adopt image to screen size
             //  oImage = OriginalImage.GetAdoptedImage(path);
@@ -307,9 +356,6 @@ public class MainActivity extends AppCompatActivity {
             }
 
 
-            // System.out.println(path);
-            // faceCascade.load(path);
-            //   eyesCascade.load(path);
 
 
             switch (mark) {
@@ -376,8 +422,12 @@ public class MainActivity extends AppCompatActivity {
 
                     // main idea
                     // oImage3 = ErodeImage.getErodeImage(oImage3, 7,7,3,3);
+                 //   Imgproc.line(oImage3, new Point(375, 500), new Point(375, 530), new Scalar(255.0, 255.0, 255.0), 3);
                     displayImage(oImage3);
-                    LabImg.getClustersFromLabImg(oImage3);
+                    ///LabImg.getClustersFromLabImg(oImage3);///IMAGE LAB START
+
+                   /// NextLabImg.getClustersFromLabImg(oImage3);///
+
                     /// LabImg.check(oImage3);
                     //  displayImage(matImgDst);
 
@@ -1317,73 +1367,474 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void plusMax_A(View view) {
+
+        createColorSectionCoordinates();
+
+        /*
         int max = Integer.valueOf(String.valueOf(infoTw4.getText()));
         max++;
         infoTw4.setText(String.valueOf(max));
         setActualValues();
+
+         */
+    }
+
+    public void createColorSectionCoordinates() {
+
+        ArrayList<Integer> aL_y = new ArrayList<>();
+        ArrayList<Integer> aL_x = new ArrayList<>();
+
+        for (int i = 0; i < all_colorSquare.size(); i++) {
+
+            ArrayList<Integer> aL_1 = all_colorSquare.get(i);
+
+            ArrayList<ArrayList> aL_1_1 = allColors_AL.get(i);
+
+            for (int j = 0; j < aL_1.size(); j++) {
+
+                for (int l = 1; l < aL_1_1.size(); l++) {
+
+                    if (aL_1.get(j).equals(aL_1_1.get(l).get(2))) {
+
+                        aL_y.add((Integer) aL_1_1.get(l).get(0));
+                        aL_x.add((Integer) aL_1_1.get(l).get(1));
+                    }
+                }
+                yColorCoor.add((ArrayList) aL_y.clone());
+                xColorCoor.add((ArrayList) aL_x.clone());
+
+                aL_y.clear();
+                aL_x.clear();
+            }
+        }
+
+        numColorSections = yColorCoor.size();
+        System.out.println("numColorSectionsnum " + numColorSections);
+        // System.out.println(yColorCoor.size());
+        // for (int i = 0; i < yColorCoor.size(); i++) {
+        //      System.out.println(yColorCoor.get(i).size());
+        //  }
     }
 
     public void minusMax_A(View view) {
+
+        for (int i = 0; i < allColors_AL.size(); i++) {
+
+            ArrayList<ArrayList> aL_1 = allColors_AL.get(i);
+            ArrayList<Integer> aL_2 = new ArrayList<>();
+
+            for (int j = 1; j < aL_1.size(); j++) {
+
+                int clrSqr = (int) aL_1.get(j).get(2);
+
+                if (!aL_2.contains(clrSqr)) {
+                    aL_2.add(clrSqr);
+                }
+            }
+
+            all_colorSquare.add((ArrayList) aL_2.clone());
+            aL_2.clear();
+        }
+
+        System.out.println(all_colorSquare.size());
+
+        for (int i = 0; i < all_colorSquare.size(); i++) {
+            System.out.println(i + " color ");
+            for (int j = 0; j < all_colorSquare.get(i).size(); j++) {
+
+                System.out.println(all_colorSquare.get(i).get(j));
+
+            }
+        }
+        /*
         int max = Integer.valueOf(String.valueOf(infoTw4.getText()));
         max--;
         infoTw4.setText(String.valueOf(max));
         setActualValues();
+
+         */
     }
 
     public void plusMinIntense(View view) {
+
+        recolorInOriginalColorSection();
+
+
+        /*
         int min = Integer.valueOf(String.valueOf(infoTw6.getText()));
         min++;
         infoTw6.setText(String.valueOf(min));
         setActualValues();
+
+         */
     }
 
     public void minusMinIntense(View view) {
+
+        recolorInWhiteColorSection();
+
+        /*
         int min = Integer.valueOf(String.valueOf(infoTw6.getText()));
         min--;
         infoTw6.setText(String.valueOf(min));
         setActualValues();
+
+         */
+    }
+
+    // return to original color every color section
+    public void recolorInOriginalColorSection() {
+
+        if (clickCount <= numColorSections) {
+
+            for (int i = 0; i < y1.size(); i++) {
+
+                double[] color = {_1_clr.get(i), _2_clr.get(i), _3_clr.get(i)};
+
+                oImage3.put(y1.get(i), x1.get(i), color);
+
+            }
+
+            displayImage(oImage3);
+
+        } else {
+
+            Toast.makeText(getBaseContext(), "Lines are finished", Toast.LENGTH_LONG).show();
+
+        }
+
+
+    }
+
+    // color in white every color section
+    public void recolorInWhiteColorSection() {
+
+        if (clickCount <= numColorSections) {
+
+            if (!y1.isEmpty()) {
+                y1.clear();
+                x1.clear();
+                _1_clr.clear();
+                _2_clr.clear();
+                _3_clr.clear();
+            }
+
+            double[] whiteClr = {255.0, 255.0, 255.0};
+
+            ArrayList<Integer> aL_y = yColorCoor.get(clickCount);
+            ArrayList<Integer> aL_x = xColorCoor.get(clickCount);
+
+            for (int i = 0; i < aL_y.size(); i++) {
+
+                double[] originalColor = oImage3.get(aL_y.get(i) + _yFromROI, aL_x.get(i) + _xFromROI);
+
+                if (originalColor[0] != 255.0 && originalColor[1] != 255.0 && originalColor[2] != 255.0) {
+
+                    y1.add(aL_y.get(i) + _yFromROI);
+                    x1.add(aL_x.get(i) + _xFromROI);
+
+                    _1_clr.add(originalColor[0]);
+                    _2_clr.add(originalColor[1]);
+                    _3_clr.add(originalColor[2]);
+                }
+
+                oImage3.put(aL_y.get(i) + _yFromROI, aL_x.get(i) + _xFromROI, whiteClr);
+
+            }
+            displayImage(oImage3);
+            System.out.println("clickCount " + clickCount);
+            clickCount++;
+
+        } else {
+            Toast.makeText(getBaseContext(), "Lines are finished", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    // return image in original state
+    public void undrawLines() {
+        if (clickCount <= numLines) {
+
+            for (int i = 0; i < y1.size(); i++) {
+
+                // System.out.println(y1.size());
+
+                double[] color = {_1_clr.get(i), _2_clr.get(i), _3_clr.get(i)};
+
+                oImage3.put(y1.get(i), x1.get(i), color);
+
+            }
+
+            displayImage(oImage3);
+        } else {
+
+            Toast.makeText(getBaseContext(), "Lines are finished", Toast.LENGTH_LONG).show();
+
+        }
+    }
+
+    // draw lines corresponding borderPoints
+    public void drawLines() {
+        if (clickCount <= numLines) {
+
+            if (!y1.isEmpty()) {
+                y1.clear();
+                x1.clear();
+                _1_clr.clear();
+                _2_clr.clear();
+                _3_clr.clear();
+            }
+
+            double[] whiteClr = {255.0, 255.0, 255.0};
+
+            ArrayList<Integer> aL_y = difrntLines_coordinatesY.get(clickCount);
+            ArrayList<Integer> aL_x = difrntLines_coordinatesX.get(clickCount);
+
+            for (int i = 0; i < aL_y.size(); i++) {
+
+                //  System.out.println(aL_y.size());
+
+                double[] originalColor = oImage3.get(aL_y.get(i) + _yFromROI, aL_x.get(i) + _xFromROI);
+
+                if (originalColor[0] != 255.0 && originalColor[1] != 255.0 && originalColor[2] != 255.0) {
+                    y1.add(aL_y.get(i) + _yFromROI);
+                    x1.add(aL_x.get(i) + _xFromROI);
+
+                    _1_clr.add(originalColor[0]);
+                    _2_clr.add(originalColor[1]);
+                    _3_clr.add(originalColor[2]);
+                }
+
+                oImage3.put(aL_y.get(i) + _yFromROI, aL_x.get(i) + _xFromROI, whiteClr);
+
+            }
+
+            displayImage(oImage3);
+            clickCount++;
+            System.out.println("clickCount " + clickCount);
+        } else {
+            Toast.makeText(getBaseContext(), "Lines are finished", Toast.LENGTH_LONG).show();
+        }
+
     }
 
     public void plusMaxIntense(View view) {
+
+        ArrayList<Integer> cY = new ArrayList<>();
+        ArrayList<Integer> cX = new ArrayList<>();
+
+        numLines = difrntLines_indexes.size();
+
+        for (int i = 0; i < difrntLines_indexes.size(); i++) {
+
+            for (int j = 0; j < difrntLines_indexes.get(i).size(); j++) {
+
+                cY.add((int) borderPoints_AL.get((int) difrntLines_indexes.get(i).get(j)).get(0));
+                cX.add((int) borderPoints_AL.get((int) difrntLines_indexes.get(i).get(j)).get(1));
+
+            }
+            difrntLines_coordinatesY.add((ArrayList) cY.clone());
+            difrntLines_coordinatesX.add((ArrayList) cX.clone());
+            cY.clear();
+            cX.clear();
+        }
+        System.out.println("Lines coordinates completed");
+        System.out.println("difrntLines_coordinatesX size " + difrntLines_coordinatesX.size());
+
+        /*
+        System.out.println(difrntLines_coordinatesX.get(2).size());
+
+        for(int i = 0; i < difrntLines_coordinatesX.get(2).size();i++){
+            System.out.println(difrntLines_coordinatesY.get(2).get(i));
+            System.out.println(difrntLines_coordinatesX.get(2).get(i));
+            System.out.println("------");
+        }
+
+         */
+
+
+
+
+
+
+        /*
         int max = Integer.valueOf(String.valueOf(infoTw8.getText()));
         max++;
         infoTw8.setText(String.valueOf(max));
         setActualValues();
+
+         */
     }
 
     public void minusMaxIntense(View view) {
+
+        String lineDescr;
+        ArrayList<Integer> aL = new ArrayList<>();
+
+        for (int i = 0; i < difrntLinesDscrptn.size(); i++) {
+
+            lineDescr = difrntLinesDscrptn.get(i);
+
+            for (int j = 0; j < linesDscrptn.size(); j++) {
+
+                if (lineDescr.equals(linesDscrptn.get(j))) {
+                    aL.add(j);
+                }
+            }
+
+            difrntLines_indexes.add((ArrayList) aL.clone());
+            aL.clear();
+        }
+        System.out.println("Arrays completed");
+
+ /*
+        System.out.println(difrntLines_indexes.size());
+
+        for (int i = 0; i < difrntLines_indexes.size(); i++) {
+
+            for (int j = 0; j < difrntLines_indexes.get(i).size(); j++) {
+                System.out.println(difrntLines_indexes.get(i).get(j));
+            }
+        }
+*/
+
+
+        /*
         int max = Integer.valueOf(String.valueOf(infoTw8.getText()));
         max--;
         infoTw8.setText(String.valueOf(max));
         setActualValues();
+        */
     }
 
     public void plusTr1(View view) {
+
+        findNumberOfLines();
+
+        System.out.println("Find lines completed");
+
+        for (int i = 0; i < linesDscrptn.size(); i++) {
+            if (!difrntLinesDscrptn.contains(linesDscrptn.get(i))) {
+                difrntLinesDscrptn.add(linesDscrptn.get(i));
+            }
+        }
+        System.out.println("Find different lines completed");
+        System.out.println("difrntLinesDscrptn size " + difrntLinesDscrptn.size());
+
+        for (int i = 0; i < 10; i++) {
+            System.out.println(difrntLinesDscrptn.get(i));
+        }
+
+
+
+
+        /*
         int min = Integer.valueOf(String.valueOf(infoTw10.getText()));
         min++;
         infoTw10.setText(String.valueOf(min));
-        setActualValues();
+        setActualValues();*/
     }
 
     public void minusTr1(View view) {
+
+
+        upDown(imgROIfromClustered);
+        System.out.println("all_colorsAL size " + allColors_AL.size());
+
+        for (int i = 0; i < allColors_AL.size(); i++) {
+            System.out.println("all_colorsAL get " + i + " " + allColors_AL.get(i).size());
+        }
+
+        //    System.out.println("upDown ready");
+
+     /*
+        downUp(imgROIfromClustered);
+        //    System.out.println("downUp ready");
+        leftRight(imgROIfromClustered);
+        //    System.out.println("leftRight ready");
+        rightLeft(imgROIfromClustered);
+        //   System.out.println("rightLeft ready");
+        diagonal_1(imgROIfromClustered);
+        //   System.out.println("diagonal_1 ready");
+        diagonal_2(imgROIfromClustered);
+        //   System.out.println("diagonal_2 ready");
+        diagonal_3(imgROIfromClustered);
+        //    System.out.println("diagonal_3 ready");
+        diagonal_4(imgROIfromClustered);
+        //     System.out.println("diagonal_4 ready");
+
+        showBorderPointsArrays();
+
+        */
+
+
+        /*
         int min = Integer.valueOf(String.valueOf(infoTw10.getText()));
         min--;
         infoTw10.setText(String.valueOf(min));
         setActualValues();
+
+         */
     }
 
     public void plusTr2(View view) {
+
+        ArrayList<ArrayList> hAL = new ArrayList<ArrayList>();
+        ArrayList<Integer> hAL3 = new ArrayList<Integer>();
+
+
+        for (int i = 0; i < rgb_string_array.size(); i++) {
+            hAL3.add(0);
+            hAL3.add(0);
+            hAL3.add(0);
+            hAL3.add(0);
+            hAL3.add(i);
+            hAL.add((ArrayList) hAL3.clone());
+            hAL3.clear();
+            allColors_AL.add((ArrayList<ArrayList>) hAL.clone());
+            hAL.clear();
+        }
+
+
+        // create array for helping to find color
+        ArrayList<String> hAL4 = new ArrayList<String>();
+        for (int i = 0; i < rgb_string_array.size(); i++) {
+            hAL4.add(String.valueOf(i));
+            hAL4.add(rgb_string_array.get(i));
+            colorDefiningAl.add((ArrayList) hAL4.clone());
+            hAL4.clear();
+
+        }
+
+        for (int i = 0; i < colorDefiningAl.size(); i++) {
+            System.out.println(colorDefiningAl.get(i).get(0));
+            System.out.println(colorDefiningAl.get(i).get(1));
+        }
+
+
+        //System.out.println("**************");
+        // System.out.println(allColors_AL.size());
+
+        /*
         int max = Integer.valueOf(String.valueOf(infoTw12.getText()));
         max++;
         infoTw12.setText(String.valueOf(max));
         setActualValues();
+        */
+
     }
 
     public void minusTr2(View view) {
+
+        rgb_string_array.clear();
+        Toast.makeText(getBaseContext(), "rgb_string_array is cleared", Toast.LENGTH_LONG).show();
+        // after code related to minusTr2
+        /*
         int max = Integer.valueOf(String.valueOf(infoTw12.getText()));
         max--;
         infoTw12.setText(String.valueOf(max));
         setActualValues();
+
+         */
     }
 
     // get actual values for using
@@ -1397,25 +1848,137 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void upDownChange(View view) {
+
+        ArrayList<int[]> al = contourCoordinatesX_Y_All.get(colorBack);
+
+        for (int i = 0; i < al.size(); i++) {
+            int[] ft5 = al.get(i);
+            int y = ft5[0];
+            int x = ft5[1];
+            oColor = originalImageColor.get(i);
+            oImage3.put(y, x, oColor);
+        }
+        colorBack++;
+        originalImageColor.clear();
+        displayImage(oImage3);
         // mUpDownChangeROI(zoomMat, min_A, max_A, min_Intense, max_Intense);
-        displayImage(mUpDownChangeROI(zoomMat, min_A, max_A, min_Intense, max_Intense));
+        //displayImage(mUpDownChangeROI(zoomMat, min_A, max_A, min_Intense, max_Intense));
         ///   displayImage(mUpDownChangeROI(oImage, min_A, max_A, min_Intense, max_Intense));
         ///   oImage2 = oImage;
     }
 
     public void downUpChange(View view) {
+
+        double[] ft3 = {0.0, 0.0, 0.0};
+
+        ArrayList<int[]> al = contourCoordinatesX_Y_All.get(clicks);
+
+        for (int i = 0; i < al.size(); i++) {
+            int[] ft5 = al.get(i);
+            int y = ft5[0];
+            int x = ft5[1];
+            oColor = oImage3.get(y, x);
+            originalImageColor.add(oColor);
+            oImage3.put(y, x, ft3);
+        }
+
+        displayImage(oImage3);
+
+        clicks++;
+
+
+        // after code related to downUpChange
+        /*
         displayImage(mDownUpChangeROI(oImage, min_A, max_A, min_Intense, max_Intense));
         oImage2 = oImage;
+         */
     }
 
     public void rightLeftChange(View view) {
+
+        if (m2 % 2 != 0) {
+            displayImage(oImage3ClusterColored);
+            m2++;
+        } else {
+            displayImage(oImage3);
+            m2++;
+        }
+
+
+        // after code related to leftrightChange
+        /*
         displayImage(mRightLeftChangeROI(oImage, min_A, max_A, min_Intense, max_Intense));
         oImage2 = oImage;
+        */
+
+    }
+
+    public void clearDataForNext() {
+
+        LabClass.squareNum = 1;
+        LabClass.isFirst = 0;
+        LabClass.squareNumHrzntl = 0;
+        LabClass.squareNumVrtcl = 0;
+        rgb_string_array.clear();
+        all_colorSquare.clear();
+        allColors_AL.clear();
+        colorDefiningAl.clear();
+        borderPoints_AL.clear();
+        linesDscrptn.clear();
+        difrntLinesDscrptn.clear();
+        difrntLines_indexes.clear();
+        difrntLines_coordinatesY.clear();
+        difrntLines_coordinatesX.clear();
+        yColorCoor.clear();
+        xColorCoor.clear();
+        clickCount = 0;
+        y1.clear();
+        x1.clear();
+        _1_clr.clear();
+        _2_clr.clear();
+        _3_clr.clear();
+        System.out.println("All previous data is cleared");
+
     }
 
     public void leftRightChange(View view) {
+
+        clearDataForNext();
+
+        imgROIfromClustered = getColorLines(oImage3ClusterColored);
+
+        /// getContourLines(oImage3ClusterColored);
+
+     /*   DrawRect.getCoord();
+
+        for (int x = xRed; x < (xYell + 1); x++) {
+
+            for (int y = yRed; y < (yYell + 1); y++) {
+
+                x_Cor_ROI.add(x);
+
+                y_Cor_ROI.add(y);
+
+            }
+        }
+
+        System.out.println(y_Cor_ROI.size());
+
+        double[] clr = {255.0,255.0,255.0};
+        for(int i = 0; i < x_Cor_ROI.size(); i++){
+            oImage3.put(y_Cor_ROI.get(i), x_Cor_ROI.get(i),clr);
+        }
+
+        System.out.println("is put");*/
+
+        // displayImage(oImage3);
+
+        // after code related to leftrightChange
+        /*
         displayImage(mLeftRightChangeROI(oImage, min_A, max_A, min_Intense, max_Intense));
         oImage2 = oImage;
+        */
+
     }
 
     public void changeToCanny(View view) {
@@ -1436,9 +1999,6 @@ public class MainActivity extends AppCompatActivity {
         //   displayImage(ContourImage._2getMainContourFromROI(doubleZoomedImage, doubleZoomedImage));
         /// ContourImage.getLabValues(oImage3);
         //  ContourImage._2getMainContourFromROI(oImage3, oImage3);
-        double[] rVal = {255.0, 0.0, 0.0, 0.0, 0.0, 255.0, 255.0, 170.0, 139.0, 255.0};
-        double[] gVal = {0.0, 0.0, 255.0, 136.0, 0.0, 255.0, 128.0, 255.0, 0.0, 128.0};
-        double[] bVal = {0.0, 0.0, 0.0, 204.0, 153.0, 0.0, 128.0, 153.0, 0.0, 0.0};
         //BELOW CODE FOR RECOLOR CONTOURS
 
         ////   for (int i = 0; i < diffXValues.size(); i++) {
@@ -1450,12 +2010,15 @@ public class MainActivity extends AppCompatActivity {
         for (int m = 0; m < all_diffYValues.size(); m++) {
             ArrayList<Integer> XValues = all_diffXValues.get(m);
             ArrayList<Integer> YValues = all_diffYValues.get(m);
+            double[] dVal = getListColor();
             for (int i = 0; i < XValues.size(); i++) {
-                double[] dVal = {rVal[m], gVal[m], bVal[m]};
-                oImage3.put(YValues.get(i), XValues.get(i), dVal);
+                //   double[] dVal = {rVal[m], gVal[m], bVal[m]};
+                // double[] dVal = getListColor();
+                oImage3ClusterColored.put(YValues.get(i), XValues.get(i), dVal);
             }
         }
 
+        Toast.makeText(getBaseContext(), "oImage3ClusterColored is ready", Toast.LENGTH_LONG).show();
         displayImage(oImage3);
 /*
         for (int i = 0; i < all_diffXValues.get(0).size(); i++) {
@@ -1466,18 +2029,29 @@ public class MainActivity extends AppCompatActivity {
 */
 
 
-     //  displayImage(oImage3);
+        //  displayImage(oImage3);
 
         //for (int i = 0; i < 100; i++) {
         //    double[] vFull = oImage3.get(500, i);
-       //     System.out.println(i + " - " + vFull[0] + ":" + vFull[1] + ":" + vFull[2]);
-            // DCol1.add(vFull[0]);
-            //   DCol2.add(vFull[1]);
-            // DCol3.add(vFull[2]);
-            // double[] dVal = {rVal[m], gVal[m], bVal[m]};
-    //    }
+        //     System.out.println(i + " - " + vFull[0] + ":" + vFull[1] + ":" + vFull[2]);
+        // DCol1.add(vFull[0]);
+        //   DCol2.add(vFull[1]);
+        // DCol3.add(vFull[2]);
+        // double[] dVal = {rVal[m], gVal[m], bVal[m]};
+        //    }
 
 
+    }
+
+    public static double[] getListColor() {
+
+        double[] list = new double[]{(double) getRandDouble(0, 254), (double) getRandDouble(0, 254), (double) getRandDouble(0, 254)};
+        return list;
+    }
+
+    public static int getRandDouble(int min, int max) {
+
+        return ThreadLocalRandom.current().nextInt(min, max + 1);
     }
 
     public ArrayList<ArrayList> sortDesc(ArrayList<ArrayList> _aL) {
@@ -1553,115 +2127,11 @@ public class MainActivity extends AppCompatActivity {
 
     public void extraContour(View view) {
 
-        displayImage(ContourImage.getExtraContourFromROI(doubleZoomedImage, doubleZoomedImage));
+        NextLabImg.getClustersFromLabImg(getMatFromROI(oImage3));
+
+
+
+        //displayImage(ContourImage.getExtraContourFromROI(doubleZoomedImage, doubleZoomedImage));
     }
-
-
-    /*
-    private void loadImage(String path) {
-
-        Mat originImg = Imgcodecs.imread(path);// image is BGR format , try to get format
-
-        int rows = originImg.rows();
-        int clmns = originImg.cols();
-
-        Size sz = new Size(clmns / 4, rows / 4);
-        Imgproc.resize(originImg, originImg, sz);
-
-
-        Mat rgbImg = new Mat();
-
-        // Mat cannyEdges = new Mat();
-        // Mat lines = new Mat();
-
-
-        //int y = 7;
-        Imgproc.cvtColor(originImg, rgbImg, Imgproc.COLOR_BGR2GRAY);
-        // convert to Canny Edge Detector
-        Imgproc.Canny(rgbImg, rgbImg, 50, 50);
-
-        //   Imgproc.HoughLines(rgbImg,rgbImg,5.0,4.0,50);
-
-        //Converting the image to grayscale
-        //  Imgproc.cvtColor(originalMat, grayMat, Imgproc.COLOR_BGR2GRAY);
-
-        //  setHoughLines(originImg);
-        //
-
-        void HoughLines () {
-
-            Mat rgbImg = new Mat();
-            Mat cannyEdges = new Mat();
-            Mat lines = new Mat();
-
-            Imgproc.cvtColor(originImg, rgbImg, Imgproc.COLOR_BGR2GRAY);
-            Imgproc.Canny(rgbImg, cannyEdges, 10, 100);
-            Imgproc.HoughLinesP(cannyEdges, lines, 1, Math.PI / 180, 50, 20, 20);
-
-            Mat houghLines = new Mat();
-            houghLines.create(cannyEdges.rows(), cannyEdges.cols(), CvType.CV_8UC1);
-
-            //Drawing lines on the image
-            for (int i = 0; i < lines.cols(); i++) {
-                double[] points = lines.get(0, i);
-                double x1, y1, x2, y2;
-
-                x1 = points[0];
-                y1 = points[1];
-                x2 = points[2];
-                y2 = points[3];
-
-                Point pt1 = new Point(x1, y1);
-                Point pt2 = new Point(x2, y2);
-
-                //Drawing lines on an image
-                Imgproc.line(houghLines, pt1, pt2, new Scalar(255, 0, 0), 1);
-            }
-            sampledImg = houghLines;
-        }
-
-
-        //Drawing lines on the image
-
-
-        //   Imgproc.GaussianBlur(rgbImg,rgbImg, new Size(y,y),0.0);
-        //  Imgproc.GaussianBlur(rgbImg,rgbImg,new Size(21,21),9);
-        // Imgproc.cvtColor(rgbImg, newImg, Imgproc.COLOR_RGB2GRAY);
-
-        Display display = getWindowManager().getDefaultDisplay();
-        Point size = new Point();
-        display.getSize(size);
-
-        int mobile_width = size.x;
-        int mobile_height = size.y;
-
-
-        sampledImg = rgbImg;
-
-
-        // double downSampleRatio = calculateSubSimpleSize(rgbImg, mobile_width, mobile_height);
-
-        //  Imgproc.resize(rgbImg, sampledImg, new Size(), downSampleRatio, downSampleRatio, Imgproc.INTER_AREA);// need more info
-
-
-        try {
-            ExifInterface exif = new ExifInterface(path);
-            int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, 1);
-
-            switch (orientation) {
-                case ExifInterface.ORIENTATION_ROTATE_90:
-                    sampledImg = sampledImg.t();
-                    Core.flip(sampledImg, sampledImg, 1);
-                    break;
-                case ExifInterface.ORIENTATION_ROTATE_270:
-                    sampledImg = sampledImg.t();
-                    Core.flip(sampledImg, sampledImg, 0);
-                    break;
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-*/
 }
 
