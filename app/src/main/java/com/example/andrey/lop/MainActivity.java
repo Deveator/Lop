@@ -102,10 +102,12 @@ import static com.example.andrey.lop.ImageActions.LabClass.x_Cor_ROI;
 import static com.example.andrey.lop.ImageActions.LabClass.y_Cor;
 import static com.example.andrey.lop.ImageActions.LabClass.y_Cor_ROI;
 import static com.example.andrey.lop.ImageActions.LabImg.all_diffXValues;
-import static com.example.andrey.lop.ImageActions.LabImg.all_diffYValues;
+//import static com.example.andrey.lop.ImageActions.LabImg.all_diffYValues;
 import static com.example.andrey.lop.ImageActions.LabImg.diffXValues;
 //import static com.example.andrey.lop.ImageActions.LabImg.diffXValues_All;
-import static com.example.andrey.lop.ImageActions.LabImg.diffYValues;
+//import static com.example.andrey.lop.ImageActions.LabImg.diffYValues;
+import static com.example.andrey.lop.ImageActions.NextLabImg.all_diffX_Values;
+import static com.example.andrey.lop.ImageActions.NextLabImg.all_diffY_Values;
 //import static com.example.andrey.lop.ImageActions.LabImg.diffYValues_All;
 
 
@@ -267,62 +269,6 @@ public class MainActivity extends AppCompatActivity {
             // oImage3 is main image
             oImage3 = OriginalImage.GetResizedImage(path);
             oImage3ClusterColored = OriginalImage.GetResizedImage(path);///
-            // OriginalImage.calculateRequiredSize(path);
-            // adopt image to screen size
-            //  oImage = OriginalImage.GetAdoptedImage(path);
-            // oImage2 = OriginalImage.GetAdoptedImage(path);
-
-            //   anPreImg = ErodeImage.getErodeImage(oImage,3,3,-1,-1);
-            //dilateImage = DilateImage.getDilateImage(oImage);
-            // erodeImage = ErodeImage.getErodeImage(oImage,3,3,-1,-1);
-            // oImage = TwoD_image.GetTwoD_Image(oImage);
-
-            // anPreImg = TwoD_image.GetTwoD_Image(oImage);
-/*
-            Point centerHandR = new Point(230.0, 875.0);
-            Imgproc.ellipse(oImage, centerHandR, new Size(65, 65), 0, 0, 360,
-                    new Scalar(255, 0, 255), 2);
-
-            Point centerHandL = new Point(500.0, 870.0);
-            Imgproc.ellipse(oImage, centerHandL, new Size(60, 60), 0, 0, 360,
-                    new Scalar(255, 0, 255), 2);
-
-            Point centerHead = new Point(360.0, 300.0);
-            Imgproc.ellipse(oImage, centerHead, new Size(110, 110), 0, 0, 360,
-                    new Scalar(255, 0, 255), 2);
-*/
-
-            //Imgproc.cvtColor(oImage,oImage,Imgproc.COLOR_BGR2Lab);
-            //Imgproc.cvtColor(oImage, oImage, Imgproc.COLOR_BGR2HSV);
-
-            //   oImage = OriginalImage.GetOriginalImage2(path);
-
-
-            //  greyImage2 = GrayImage.GetGrayImage(oImage);
-
-            //  greyImage = GrayImage.GetGrayImage(oImage);
-
-            /// Imgproc.rectangle(greyImage, new Point(greyImage.cols() / 4, greyImage.rows() / 2),
-            ////        new Point(greyImage.cols() / 4 + 150, greyImage.rows() / 2 + 100), new Scalar(255, 0, 0), 2, 8, 0);
-
-            //  gaussianImage = GaussianImage.GetGaussianImage(oImage,3,3,5);
-
-            // filter2DImage = TwoD_image.GetTwoD_Image(oImage);
-            //Imgproc.cvtColor(oImage, oImage, Imgproc.COLOR_BGR2GRAY);
-            //  Mat dst = new Mat();
-            //  Imgproc.equalizeHist( oImage, dst );
-            //   preImg = ErodeImage.getErodeImage(oImage);
-            //   cannyImage = CannyImage.GetCannyImage(dst,100,200);
-
-            // houghImage = HoughLinesImage.GetHoughLinesImage(oImage);
-
-            //  houghCirculeImage = HoughCircle.GetHoughCircle(oImage);
-
-            // filter2DImage = TwoD_image.GetTwoD_Image(oImage);
-
-            //  filter2DImage_2 = TwoD_image.GetTwoD_Image_2(oImage);
-            //  CascadeClassifier faceCascade = new CascadeClassifier();
-            //   CascadeClassifier eyesCascade = new CascadeClassifier();
 
             try {
                 InputStream is = getResources().openRawResource(R.raw.haarcascade_lowerbody);
@@ -361,68 +307,7 @@ public class MainActivity extends AppCompatActivity {
             switch (mark) {
 
                 case 0:
-
-                    ///AFTER THIS NOTE IS CODE WHICH FINDS SHORTS
-                    /*
-                     *LabClass.calculate(oImage);
-                     *preImg = changeColor(preImg);
-                     *anPreImg = ErodeImage.getErodeImage(preImg);
-                     *helpImg = ContourImage.getMainContourImage(anPreImg);
-                     *displayImage(helpImg);
-                     */
-
-                    /*
-                    // block to erase background
-                    LabClass.upDownStage(oImage);
-                    preImg = changeColor(oImage);
-
-                    LabClass.leftRightStage(preImg);
-                    preImg = changeColor(preImg);
-
-                    LabClass.rightLeftStage(preImg);
-                    preImg = changeColor(preImg);
-
-                    LabClass.downUpStage(preImg);
-                    preImg = changeColor(preImg);
-                    // end block
-
-                    */
-
-                    // get value of background color
-                    //// checkPreconditions(oImage);
-//by default here should be oImage,oImage2 is set because of surrounded hands
-/*
-                    checkPreconditions(oImage2);
-
-                    infoTw2.append(Integer.toString(rMin));
-                    infoTw4.append(Integer.toString(rMax));
-                    infoTw6.append(Integer.toString(minIntense));
-                    infoTw8.append(Integer.toString(maxIntense));
-                    infoTw10.append(Integer.toString(thres_1));
-                    infoTw12.append(Integer.toString(thres_2));
-                    setActualValues();
-*/
                     view3.setVisibility(View.INVISIBLE);
-
-                    //    oImage3 = GammaImg.getGammaImg(oImage3,0.5);
-                    //  Imgproc.blur(oImage3,oImage3,new Size(3,3));
-                    //Imgproc.blur(oImage3,oImage3,new Size(3,3));
-                    //  oImage3 = ContrastImg.getContrastImg(oImage3, 1.7, 0);
-                    // oImage3 = MorfOperations.getMorfGradientImg(oImage3, 7, 7, 3, 3);
-                    //   oImage3 = ContrastImg.getContrastImg(oImage3, 1.7, -20);
-                    // Imgproc.blur(oImage3,oImage3,new Size(3,3));
-                    // oImage3 = MorfOperations.getMorfOpenImg(oImage3, 7, 7, 3, 3);
-
-
-                    //  Imgproc.cvtColor(oImage3, oImage3, Imgproc.COLOR_BGR2Lab);
-                    //  oImage3 = ContrastImg.getContrastImg(oImage3, 1.7, -20);
-                    //  oImage3 = CannyImage.GetCannyImage(oImage3,50,200);
-                    //   oImage3 = MorfOperations.getMorfOpenImg(oImage3, 7, 7, 3, 3);
-                    //  oImage3 = TwoD_image.GetTwoD_Image(oImage3);
-
-                    // main idea
-                    // oImage3 = ErodeImage.getErodeImage(oImage3, 7,7,3,3);
-                 //   Imgproc.line(oImage3, new Point(375, 500), new Point(375, 530), new Scalar(255.0, 255.0, 255.0), 3);
                     displayImage(oImage3);
                     ///LabImg.getClustersFromLabImg(oImage3);///IMAGE LAB START
 
@@ -1188,8 +1073,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void getZoomedBitmap(View view) {
-
-        displayImage(FaceDetect.getFaceDetect(oImage3, cascadeClassifier));
+        Imgproc.cvtColor(oImage3, oImage3, Imgproc.COLOR_BGR2Lab);
+        displayImage(oImage3);
+        //displayImage(FaceDetect.getFaceDetect(oImage3, cascadeClassifier));
 
 /*
         createZoomedBitmap();
@@ -1746,7 +1632,7 @@ public class MainActivity extends AppCompatActivity {
 
         //    System.out.println("upDown ready");
 
-     /*
+
         downUp(imgROIfromClustered);
         //    System.out.println("downUp ready");
         leftRight(imgROIfromClustered);
@@ -1764,7 +1650,7 @@ public class MainActivity extends AppCompatActivity {
 
         showBorderPointsArrays();
 
-        */
+
 
 
         /*
@@ -1943,9 +1829,11 @@ public class MainActivity extends AppCompatActivity {
 
     public void leftRightChange(View view) {
 
-        clearDataForNext();
+       // clearDataForNext();
 
         imgROIfromClustered = getColorLines(oImage3ClusterColored);
+
+      //  imgROIfromClustered =
 
         /// getContourLines(oImage3ClusterColored);
 
@@ -2007,9 +1895,9 @@ public class MainActivity extends AppCompatActivity {
         ////    }
 
 
-        for (int m = 0; m < all_diffYValues.size(); m++) {
-            ArrayList<Integer> XValues = all_diffXValues.get(m);
-            ArrayList<Integer> YValues = all_diffYValues.get(m);
+        for (int m = 0; m < all_diffY_Values.size(); m++) {
+            ArrayList<Integer> XValues = all_diffX_Values.get(m);
+            ArrayList<Integer> YValues = all_diffY_Values.get(m);
             double[] dVal = getListColor();
             for (int i = 0; i < XValues.size(); i++) {
                 //   double[] dVal = {rVal[m], gVal[m], bVal[m]};
@@ -2127,7 +2015,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void extraContour(View view) {
 
-        NextLabImg.getClustersFromLabImg(getMatFromROI(oImage3));
+        NextLabImg.getClustersFromLabROIImg(getMatFromROI(oImage3));
 
 
 

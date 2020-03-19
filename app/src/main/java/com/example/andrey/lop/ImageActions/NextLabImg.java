@@ -8,6 +8,9 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.TreeSet;
 
+import static com.example.andrey.lop.CustomView.DrawRect.xRed;
+import static com.example.andrey.lop.CustomView.DrawRect.yRed;
+
 public class NextLabImg {
 
     public static ArrayList<String> Lab_Values = new ArrayList<String>();
@@ -27,14 +30,15 @@ public class NextLabImg {
     public static ArrayList<ArrayList> clustersL_IndexCopy = new ArrayList<ArrayList>();
     public static ArrayList<ArrayList> clusterS_yx_Values = new ArrayList<ArrayList>();
     public static ArrayList<ArrayList> finalSortedCluster = new ArrayList<ArrayList>();
+    public static ArrayList<ArrayList> all_diffX_Values = new ArrayList<ArrayList>();
+    public static ArrayList<ArrayList> all_diffY_Values = new ArrayList<ArrayList>();
 
-    public static ArrayList<String> diffrent_ab_values = new ArrayList<String>();
 
-    public static void getClustersFromLabImg(Mat mat) {
+    public static void getClustersFromLabROIImg(Mat mat) {
 
         Mat labMat = new Mat();
 
-        Imgproc.cvtColor(mat, labMat, Imgproc.COLOR_BGR2Lab);
+       Imgproc.cvtColor(mat, labMat, Imgproc.COLOR_BGR2Lab);
 
         for (int x = 0; x < labMat.cols(); x++) {
             for (int y = 0; y < labMat.rows(); y++) {
@@ -46,18 +50,21 @@ public class NextLabImg {
 
                 String s = a + "." + b + "." + L;
                 Lab_Values.add(s);
-                String s1 = y + "." + x;
+
+                String s1 = (y + yRed) + "." + (x + xRed);
                 yx_Values.add(s1);
             }
         }
         getDifferentLabValues();
         getAandBarrays();
+        System.out.println("True YX coordinates" + yx_Values.get(0));
 
 
         clusterizeA(40);
         clusterizeB(40);
         clusterizeL(40);
         sortArray();
+       // Imgproc.cvtColor(mat, labMat, Imgproc.COLOR_Lab2BGR);
         System.out.println("COMPLETED");
     }
 
@@ -111,9 +118,9 @@ public class NextLabImg {
             clustersA_Index.add(indexFromAStep);
         }
         System.out.println("clustersA_ - " + clustersA_.size());
-     ///   for (int i = 0; i < 10; i++) {
-     ///       System.out.println(i + " - " + clustersA_.get(i).size());
-     ///   }
+        ///   for (int i = 0; i < 10; i++) {
+        ///       System.out.println(i + " - " + clustersA_.get(i).size());
+        ///   }
     }
 
     public static void clusterizeB(int clusterStep) {
@@ -145,9 +152,9 @@ public class NextLabImg {
             clustersB_IndexCopy.add(indexFromBStepCopy);
         }
         System.out.println("clustersB_ - " + clustersB_.size());
-     ///   for (int i = 0; i < 10; i++) {
-     ///       System.out.println(i + " - " + clustersB_.get(i).size());
-     ///   }
+        ///   for (int i = 0; i < 10; i++) {
+        ///       System.out.println(i + " - " + clustersB_.get(i).size());
+        ///   }
     }
 
     public static void clusterizeL(int clusterStep) {
@@ -179,9 +186,9 @@ public class NextLabImg {
             clustersL_IndexCopy.add(indexFromLStepCopy);
         }
         System.out.println("clustersL_ - " + clustersL_.size());
-       /// for (int i = 0; i < 10; i++) {
-       ///     System.out.println(i + " - " + clustersL_.get(i).size());
-      ///  }
+        /// for (int i = 0; i < 10; i++) {
+        ///     System.out.println(i + " - " + clustersL_.get(i).size());
+        ///  }
 
     }
 
@@ -196,8 +203,8 @@ public class NextLabImg {
         }
         Collections.sort(aList);
         Collections.reverse(aList);
-         System.out.println("aList size - " + aList.size());
-         System.out.println("aList first - " + aList.get(0));
+        System.out.println("aList size - " + aList.size());
+        System.out.println("aList first - " + aList.get(0));
 
         for (int y = 0; y < clustersL_IndexCopy.size(); y++) {
             for (int j = 0; j < clustersL_IndexCopy.size(); j++) {
@@ -260,7 +267,7 @@ public class NextLabImg {
         System.out.println(finalSortedCluster.get(0).get(0));
         // System.out.println(diffrent_a_b_values.get(122));
 
-       reColor();
+        reColor();
 
 
     }
@@ -313,40 +320,25 @@ public class NextLabImg {
 
         ArrayList<String> aL = new ArrayList<>();
         ArrayList<ArrayList> aL_All = new ArrayList<>();
-// changes
+        // changes
         for (int c = 0; c < finalSortedCluster.size(); c++) {
-
             ArrayList<Integer> help_aL = finalSortedCluster.get(c);
-
             for (int i = 0; i < help_aL.size(); i++) {
-
                 int y = help_aL.get(i);
-
                 aL.add(diffrent_Lab_values.get(y));
-
             }
             aL_All.add((ArrayList) aL.clone());
             aL.clear();
         }
 
         ArrayList<String> aL_2 = new ArrayList<>();
-        //   ArrayList<ArrayList> aL_All_2 = new ArrayList<>();
 
         for (int c = 0; c < aL_All.size(); c++) {
-
             ArrayList<String> help_aL = aL_All.get(c);
-
             for (int i = 0; i < help_aL.size(); i++) {
-
                 for (int q = 0; q < Lab_Values.size(); q++) {
-
                     if (help_aL.get(i).equals(Lab_Values.get(q))) {
-
                         aL_2.add(yx_Values.get(q));
-
-                        //  if(help_aL.get(i)== 128.125){
-                        //     System.out.println(y_x_Values.get(q));
-                        //  }
                     }
                 }
             }
@@ -354,16 +346,44 @@ public class NextLabImg {
             aL_2.clear();
         }
 
-        int res=0;
+        int res = 0;
         System.out.println("*********************");
         System.out.println(clusterS_yx_Values.size());
         System.out.println(clusterS_yx_Values.get(0).size());
 
-        for(int i = 0; i < clusterS_yx_Values.size(); i++){
+        for (int i = 0; i < clusterS_yx_Values.size(); i++) {
             res = res + clusterS_yx_Values.get(i).size();
         }
         System.out.println("Count of all arrays " + res);
 
+        getYandXarrays();
+
+    }
+
+    public static void getYandXarrays() {
+
+        ArrayList<Integer> _diffYValues = new ArrayList<>();
+        ArrayList<Integer> _diffXValues = new ArrayList<>();
+
+        for (int c = 0; c < clusterS_yx_Values.size(); c++) {
+
+            ArrayList<String> help_aL = clusterS_yx_Values.get(c);
+
+            for (int i = 0; i < help_aL.size(); i++) {
+
+                String r = help_aL.get(i);
+
+                String[] arrOfStr = r.split("\\.");
+
+                _diffYValues.add(Integer.valueOf(arrOfStr[0]));
+
+                _diffXValues.add(Integer.valueOf(arrOfStr[1]));
+            }
+            all_diffY_Values.add((ArrayList) _diffYValues.clone());
+            all_diffX_Values.add((ArrayList) _diffXValues.clone());
+            _diffYValues.clear();
+            _diffXValues.clear();
+        }
     }
 
 

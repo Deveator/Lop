@@ -84,10 +84,14 @@ public class ContourImage {
 
     public static Mat getColorLines(Mat inputImage) {
 
-        DrawRect.getCoord();
+      ///  DrawRect.getCoord();
 
 
         Mat sMat = inputImage.submat(yRed, yGreen, xRed, xOrg);
+        System.out.println("yRed - " + yRed);
+        System.out.println("yGreen - " + yGreen);
+        System.out.println("xRed - " + xRed);
+        System.out.println("xOrg - " + xOrg);
 
         MainActivity._yFromROI = yRed;
         MainActivity._xFromROI = xRed;
@@ -105,7 +109,7 @@ public class ContourImage {
         DrawRect.getCoord();
         Mat sMat = inputImage.submat(yRed, yGreen, xRed, xOrg);
 
-        Imgproc.cvtColor(sMat, sMat, Imgproc.COLOR_BGR2Lab);
+       // Imgproc.cvtColor(sMat, sMat, Imgproc.COLOR_BGR2Lab);
 
 
         return sMat;
